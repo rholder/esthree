@@ -1,0 +1,122 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'gradle-autojar'
+
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
+group = 'com.github.rholder'
+version = '0.1.0-SNAPSHOT'
+ext.packaging = 'jar'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.github.rholder:gradle-autojar:1.0.1'
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "com.amazonaws:aws-java-sdk:1.6.9.1"
+    compile "com.beust:jcommander:1.32"
+    compile "com.github.rholder:guava-retrying:1.0.5"
+    compile "commons-io:commons-io:2.4"
+
+    runtime "org.slf4j:slf4j-simple:1.7.5"
+
+    // junit testing
+    testCompile "junit:junit:4.11"
+    testCompile "org.mockito:mockito-all:1.9.5"
+}
+
+jar {
+    exclude('simplelogger.properties')
+}
+
+task autojarJar(type: Autojar) {
+    group = "Distribution"
+    description = "Generate a stripped down Autojar'd executable jar"
+
+    mainClass = "com.github.rholder.esthree.Main"
+
+    autojarFiles = [
+            "com/amazonaws/sdk/versionInfo.properties",
+            "awssdk_config_default.json",
+            "simplelogger.properties"]
+
+    autojarClasses = [
+            "org.slf4j.MDC",
+            "org.slf4j.impl.StaticMDCBinder",
+            "org.apache.commons.logging.impl.SimpleLog",
+            "org.apache.commons.logging.impl.LogFactoryImpl",
+            "com.beust.jcommander.converters.CommaParameterSplitter",
+            "com.amazonaws.internal.config.HttpClientConfigJsonHelper"]
+}
+
+task repackedJar(type: Exec, dependsOn: autojarJar) {
+    group = "Distribution"
+    description = "Repack and strip debugging information with pack200"
+
+    def outputDir = new File(buildDir, "repacked")
+    def outputFile = new File(outputDir, project.name + "-repacked.jar")
+    outputs.files outputFile
+
+    commandLine 'pack200', '--repack', '-G', outputFile.absolutePath, autojarJar.outputs.files.asPath
+
+    doFirst {
+        outputDir.mkdirs()
+    }
+}
+
+task executableBinary(dependsOn: repackedJar) {
+    group = "Distribution"
+    description = "Create a distributable standalone executable binary"
+
+    def outputDir = new File(buildDir, "executable")
+    outputs.dir outputDir
+    doLast {
+        repackedJar.outputs.files.each { jarFile ->
+            outputDir.mkdirs()
+
+            def out = new File(outputDir, project.name)
+            out.delete()
+
+            out.append(new FileInputStream(file("gradle/java_stub.sh")))
+            out.append(new FileInputStream(jarFile.absolutePath))
+
+            out.executable = true
+        }
+    }
+}
+
+task debugBinary(dependsOn: autojarJar) {
+    group = "Distribution"
+    description = "Create a distributable standalone executable binary with Debug info"
+
+    def outputDir = new File(buildDir, "executable")
+    outputs.dir outputDir
+    doLast {
+        autojarJar.outputs.files.each { jarFile ->
+            outputDir.mkdirs()
+
+            def out = new File(outputDir, project.name)
+            out.delete()
+
+            out.append(new FileInputStream(file("gradle/java_stub.sh")))
+            out.append(new FileInputStream(jarFile.absolutePath))
+
+            out.executable = true
+        }
+    }
+}
+
+// enable Gradle Wrapper support for bootstrapping with specific version
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.9'
+}
