@@ -64,7 +64,6 @@ public class GetMultipart implements Callable<Integer> {
         this.bucket = bucket;
         this.key = key;
         this.output = new RandomAccessFile(outputFile, "rw");
-        this.chunkSize = DEFAULT_CHUNK_SIZE;
     }
 
     public GetMultipart withProgressListener(PrintingProgressListener progressListener) {
@@ -85,6 +84,7 @@ public class GetMultipart implements Callable<Integer> {
 
         // this is the most up to date digest, it's initialized here but later holds the most up to date valid digest
         currentDigest = MessageDigest.getInstance("MD5");
+        chunkSize = chunkSize == null ? DEFAULT_CHUNK_SIZE : chunkSize;
         fileParts = chunk(contentLength, chunkSize);
         for (FilePart fp : fileParts) {
 

@@ -18,7 +18,6 @@ package com.github.rholder.esthree.cli;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import com.github.rholder.esthree.command.Get;
 import com.github.rholder.esthree.command.GetMultipart;
 import com.github.rholder.esthree.util.PrintingProgressListener;
 import com.github.rholder.esthree.util.S3PathUtils;
@@ -39,6 +38,9 @@ public class GetMultipartCommand implements Command {
     public GetMultipartCommand(PrintStream output) {
         this.output = output;
     }
+
+    @Parameter(names = {"-c", "--chunk-size"}, description = "The request chunk size in bytes (e.g. 10485760 for 10MB chunks), defaults to 5MB")
+    public Integer chunkSize;
 
     @Parameter(names = {"-np", "--no-progress"}, description = "Don't print a progress bar")
     public Boolean progress;
@@ -84,6 +86,7 @@ public class GetMultipartCommand implements Command {
             }
 
             return new GetMultipart(bucket, key, outputFile)
+                    .withChunkSize(chunkSize)
                     .withProgressListener(progressListener)
                     .call();
         } catch (Exception e) {
