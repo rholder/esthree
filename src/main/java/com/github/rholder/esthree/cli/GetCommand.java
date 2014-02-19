@@ -16,6 +16,7 @@
 
 package com.github.rholder.esthree.cli;
 
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.github.rholder.esthree.command.Get;
@@ -33,9 +34,11 @@ public class GetCommand implements Command {
 
     public static final String NAME = "get";
 
+    public AmazonS3Client amazonS3Client;
     public PrintStream output;
 
-    public GetCommand(PrintStream output) {
+    public GetCommand(AmazonS3Client amazonS3Client, PrintStream output) {
+        this.amazonS3Client = amazonS3Client;
         this.output = output;
     }
 
@@ -82,7 +85,7 @@ public class GetCommand implements Command {
                 progressListener = new PrintingProgressListener(output);
             }
 
-            return new Get(bucket, key, outputFile)
+            return new Get(amazonS3Client, bucket, key, outputFile)
                     .withProgressListener(progressListener)
                     .call();
         } catch (Exception e) {

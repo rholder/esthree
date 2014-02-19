@@ -16,6 +16,7 @@
 
 package com.github.rholder.esthree.cli;
 
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.github.rholder.esthree.command.GetMultipart;
@@ -33,9 +34,11 @@ public class GetMultipartCommand implements Command {
 
     public static final String NAME = "get-multi";
 
+    public AmazonS3Client amazonS3Client;
     public PrintStream output;
 
-    public GetMultipartCommand(PrintStream output) {
+    public GetMultipartCommand(AmazonS3Client amazonS3Client, PrintStream output) {
+        this.amazonS3Client = amazonS3Client;
         this.output = output;
     }
 
@@ -85,7 +88,7 @@ public class GetMultipartCommand implements Command {
                 progressListener = new PrintingProgressListener(output);
             }
 
-            return new GetMultipart(bucket, key, outputFile)
+            return new GetMultipart(amazonS3Client, bucket, key, outputFile)
                     .withChunkSize(chunkSize)
                     .withProgressListener(progressListener)
                     .call();

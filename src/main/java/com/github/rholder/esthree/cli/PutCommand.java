@@ -16,6 +16,7 @@
 
 package com.github.rholder.esthree.cli;
 
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.github.rholder.esthree.command.Put;
@@ -31,9 +32,11 @@ public class PutCommand implements Command {
 
     public static final String NAME = "put";
 
+    public AmazonS3Client amazonS3Client;
     public PrintStream output;
 
-    public PutCommand(PrintStream output) {
+    public PutCommand(AmazonS3Client amazonS3Client, PrintStream output) {
+        this.amazonS3Client = amazonS3Client;
         this.output = output;
     }
 
@@ -70,13 +73,12 @@ public class PutCommand implements Command {
 
         // TODO validate params here
         try {
-
             PrintingProgressListener progressListener = null;
             if(progress) {
                 progressListener = new PrintingProgressListener(output);
             }
 
-            return new Put(bucket, key, outputFile)
+            return new Put(amazonS3Client, bucket, key, outputFile)
                     .withProgressListener(progressListener)
                     .call();
         } catch (Exception e) {

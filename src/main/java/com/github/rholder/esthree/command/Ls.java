@@ -16,13 +16,12 @@
 
 package com.github.rholder.esthree.command;
 
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
-import com.github.rholder.retry.RetryException;
 import com.github.rholder.esthree.util.RetryUtils;
+import com.github.rholder.retry.RetryException;
 
 import java.io.PrintStream;
 import java.math.BigInteger;
@@ -39,6 +38,7 @@ public class Ls implements Callable<Integer> {
     public static final BigInteger AWS_MAX_KEYS_BIG = new BigInteger(AWS_MAX_KEYS.toString());
     public static final BigInteger ONE = new BigInteger("1");
 
+    public AmazonS3Client amazonS3Client;
     public String bucket;
     public String prefix;
     public BigInteger limit;
@@ -46,7 +46,8 @@ public class Ls implements Callable<Integer> {
     public String listFormat = DEFAULT_LIST_FORMAT;
     public PrintStream printStream;
 
-    public Ls(String bucket) {
+    public Ls(AmazonS3Client amazonS3Client, String bucket) {
+        this.amazonS3Client = amazonS3Client;
         this.bucket = bucket;
     }
 
@@ -85,7 +86,7 @@ public class Ls implements Callable<Integer> {
             }
 
             if(nextLimit > 0) {
-                ObjectListing o = list(bucket, prefix, nextMarker, nextLimit);
+                ObjectListing o = list(nextMarker, nextLimit);
                 for (S3ObjectSummary os : o.getObjectSummaries()) {
                     if (limit == null || count.compareTo(limit) <= 0) {
                         printStream.println(String.format(listFormat,
@@ -115,12 +116,10 @@ public class Ls implements Callable<Integer> {
      * which we're also setting here explicitly to minimize future SDK update
      * implications).
      *
-     * @param bucket the bucket to list
-     * @param prefix the prefix (can be null if none specified)
      * @param marker the last marker from a previous call or null
      * @param limit  return no more than this many
      */
-    public static ObjectListing list(final String bucket, final String prefix, final String marker, final int limit) throws ExecutionException, RetryException {
+    public ObjectListing list(final String marker, final int limit) throws ExecutionException, RetryException {
         return (ObjectListing) RetryUtils.AWS_RETRYER.call(new Callable<Object>() {
             public ObjectListing call() throws Exception {
 
@@ -131,7 +130,7 @@ public class Ls implements Callable<Integer> {
                 if (prefix != null) {
                     lor.withPrefix(prefix);
                 }
-                return new AmazonS3Client(new DefaultAWSCredentialsProviderChain()).listObjects(lor);
+                return amazonS3Client.listObjects(lor);
             }
         });
     }

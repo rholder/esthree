@@ -16,6 +16,7 @@
 
 package com.github.rholder.esthree.cli;
 
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.github.rholder.esthree.command.Ls;
@@ -31,9 +32,11 @@ public class LsCommand implements Command {
 
     public static final String NAME = "ls";
 
+    public AmazonS3Client amazonS3Client;
     public PrintStream output;
 
-    public LsCommand(PrintStream output) {
+    public LsCommand(AmazonS3Client amazonS3Client, PrintStream output) {
+        this.amazonS3Client = amazonS3Client;
         this.output = output;
     }
 
@@ -59,7 +62,7 @@ public class LsCommand implements Command {
         // TODO validate params here
 
         try {
-            Ls ls = new Ls(bucket)
+            Ls ls = new Ls(amazonS3Client, bucket)
                     .withPrefix(prefix)
                     .withLimit(limit)
                     .withPrintStream(output);

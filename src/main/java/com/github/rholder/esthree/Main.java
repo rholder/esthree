@@ -16,6 +16,8 @@
 
 package com.github.rholder.esthree;
 
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.beust.jcommander.JCommander;
 import com.github.rholder.esthree.cli.Command;
 import com.github.rholder.esthree.cli.GetCommand;
@@ -31,11 +33,14 @@ import java.util.Map;
 public class Main {
 
     public static final String HEADER = "esthree 0.1.1 - An S3 client that just works.\n\n";
+
+    public static final AmazonS3Client AMAZON_S3_CLIENT = new AmazonS3Client(new DefaultAWSCredentialsProviderChain());
+
     public static final List<Command> COMMAND_LIST = new ArrayList<Command>() {{
-        add(new LsCommand(System.out));
-        add(new GetCommand(System.out));
-        add(new PutCommand(System.out));
-        add(new GetMultipartCommand(System.out));
+        add(new LsCommand(AMAZON_S3_CLIENT, System.out));
+        add(new GetCommand(AMAZON_S3_CLIENT, System.out));
+        add(new PutCommand(AMAZON_S3_CLIENT, System.out));
+        add(new GetMultipartCommand(AMAZON_S3_CLIENT, System.out));
     }};
 
     public static void main(String[] args) throws Exception {
@@ -57,6 +62,7 @@ public class Main {
             int ret = command.execute();
             System.exit(ret);
         } else {
+            // TODO this looks awful, just print the general help manually
             StringBuilder usage = new StringBuilder(HEADER);
             jc.usage(usage);
             System.out.println(usage);

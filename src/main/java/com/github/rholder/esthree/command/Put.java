@@ -16,7 +16,7 @@
 
 package com.github.rholder.esthree.command;
 
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.Upload;
 import com.github.rholder.esthree.util.PrintingProgressListener;
@@ -26,13 +26,15 @@ import java.util.concurrent.Callable;
 
 public class Put implements Callable<Integer> {
 
+    public AmazonS3Client amazonS3Client;
     public String bucket;
     public String key;
     public File inputFile;
 
     public PrintingProgressListener progressListener;
 
-    public Put(String bucket, String key, File inputFile) {
+    public Put(AmazonS3Client amazonS3Client, String bucket, String key, File inputFile) {
+        this.amazonS3Client = amazonS3Client;
         this.bucket = bucket;
         this.key = key;
         this.inputFile = inputFile;
@@ -45,7 +47,7 @@ public class Put implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        TransferManager t = new TransferManager(new DefaultAWSCredentialsProviderChain().getCredentials());
+        TransferManager t = new TransferManager(amazonS3Client);
         Upload u = t.upload(bucket, key, inputFile);
 
         if (progressListener != null) {

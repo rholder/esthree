@@ -50,17 +50,20 @@ public class GetMultipart implements Callable<Integer> {
     public static final int DEFAULT_BUF_SIZE = 4096 * 4;
     public static final int DEFAULT_CHUNK_SIZE = 1024 * 1024 * 5; // 5 MB
 
-    public final String bucket;
-    public final String key;
-    public final RandomAccessFile output;
+    public AmazonS3Client amazonS3Client;
+    public String bucket;
+    public String key;
+    public RandomAccessFile output;
 
     private Integer chunkSize;
+    private PrintingProgressListener progressListener;
+
     private MessageDigest currentDigest;
     private List<FilePart> fileParts;
-    private PrintingProgressListener progressListener;
     private long contentLength;
 
-    public GetMultipart(String bucket, String key, File outputFile) throws FileNotFoundException {
+    public GetMultipart(AmazonS3Client amazonS3Client, String bucket, String key, File outputFile) throws FileNotFoundException {
+        this.amazonS3Client = amazonS3Client;
         this.bucket = bucket;
         this.key = key;
         this.output = new RandomAccessFile(outputFile, "rw");
@@ -78,8 +81,7 @@ public class GetMultipart implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        AmazonS3Client client = new AmazonS3Client(new DefaultAWSCredentialsProviderChain());
-        ObjectMetadata om = client.getObjectMetadata(bucket, key);
+        ObjectMetadata om = amazonS3Client.getObjectMetadata(bucket, key);
         contentLength = om.getContentLength();
 
         // this is the most up to date digest, it's initialized here but later holds the most up to date valid digest
