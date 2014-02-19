@@ -16,31 +16,44 @@
 
 package com.github.rholder.esthree.util;
 
+/**
+ * Here's a collection of S3 path munging methods.
+ */
 public class S3PathUtils {
 
     public static final String S3_PROTOCOL = "s3://";
 
+    /**
+     * Return the bucket from an S3 path string (e.g. foo from s3://foo/bar).
+     *
+     * @param s3format an s3 path string
+     */
     public static String getBucket(String s3format) {
         String bucket = null;
-        if(s3format.startsWith(S3_PROTOCOL)) {
+        if (s3format.startsWith(S3_PROTOCOL)) {
             String[] split = s3format.replaceFirst(S3_PROTOCOL, "").split("/");
             bucket = split.length > 0 ? split[0] : null;
         }
         return bucket;
     }
 
+    /**
+     * Return the prefix from an S3 path string (e.g. bar from s3://foo/bar).
+     *
+     * @param s3format an s3 path string
+     */
     public static String getPrefix(String s3format) {
         String prefix = null;
         String bucket = getBucket(s3format);
 
         // no bucket means the input is wonky anyway, just bail out
-        if(bucket != null) {
+        if (bucket != null) {
 
             // rip out the bucket
             String parsed = s3format.substring(S3_PROTOCOL.length() + bucket.length(), s3format.length());
 
             // skip leading "/", an empty prefix remains null
-            if(parsed.length() > 1) {
+            if (parsed.length() > 1) {
                 prefix = parsed.substring(1, parsed.length());
             }
         }
