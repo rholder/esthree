@@ -8,6 +8,14 @@ things like asking for too much of it at one time or playing around on public wi
 conscious effort to retry and validate whatever you're sending/receiving to/from S3. If `esthree` fails at its mission,
 it should raise a non-zero exit code on termination.
 
+##Features
+* Single minified binary install, all you need is a JVM on your path
+* Multi-part download a massive file in small chunks instead the whole thing in one request
+* Multi-part upload a massive file in small chunks
+* List bucket contents
+* Upload/Download progress bars
+* Returns non-zero when bad things happen
+
 ##Installation
 `esthree` is just a single binary that you can drop anywhere you feel like on a *nix based system (sorry Windows, maybe
 it works with Cygwin...). As long as you have a JVM installed that's at least 1.6 or above, you can install it with:
@@ -27,7 +35,7 @@ Make sure you have your AWS keys in one of the places defined by the
 You can pass any number of Java System properties (as well as any other JVM specific arguments) to `esthree`
 through `JAVA_OPTS`, such as:
 ```
-export JAVA_OPTS="-Daws.accessKeyId=anAccesskey -Daws.secretKey=aSecretKey"
+export JAVA_OPTS="-Daws.accessKeyId=SOME_ACCESS_KEY -Daws.secretKey=SOME_SECRET_KEY"
 ```
 
 Here are some things you can do:
