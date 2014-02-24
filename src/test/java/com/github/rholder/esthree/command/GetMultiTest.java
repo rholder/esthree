@@ -25,7 +25,7 @@ import com.github.rholder.esthree.progress.PrintingProgressListener;
 import com.github.rholder.esthree.util.FileChunker;
 import com.google.common.primitives.Ints;
 import org.apache.commons.io.IOUtils;
-import org.apache.ivy.util.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
