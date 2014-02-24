@@ -55,9 +55,13 @@ public class PrintingProgressListener implements MutableProgressListener {
 
     @Override
     public void progressChanged(ProgressEvent progressEvent) {
-        out.print(String.format("%1$s %2$10s / %3$s\r",
-                generate(saturatedCast(round(completed + (progress.getPercentTransferred() * multiplier)))),
-                humanReadableByteCount(progress.getBytesTransferred(), true),
-                humanReadableByteCount(progress.getTotalBytesToTransfer(), true)));
+        if((progressEvent.getEventCode() & ProgressEvent.COMPLETED_EVENT_CODE) > 0) {
+            out.println();
+        } else {
+            out.print(String.format("\r%1$s %2$10s / %3$s",
+                    generate(saturatedCast(round(completed + (progress.getPercentTransferred() * multiplier)))),
+                    humanReadableByteCount(progress.getBytesTransferred(), true),
+                    humanReadableByteCount(progress.getTotalBytesToTransfer(), true)));
+        }
     }
 }

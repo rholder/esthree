@@ -100,6 +100,10 @@ public class GetMultipart implements Callable<Integer> {
             currentDigest = retryingGetWithRange(fp.start, fp.end);
         }
 
+        if(progressListener != null) {
+            progressListener.progressChanged(new ProgressEvent(ProgressEvent.COMPLETED_EVENT_CODE, 0));
+        }
+
         String fullETag = om.getETag();
         if (!fullETag.contains("-")) {
             byte[] expected = BinaryUtils.fromHex(fullETag);
@@ -132,7 +136,7 @@ public class GetMultipart implements Callable<Integer> {
                 if (progressListener != null) {
                     progressListener.withTransferProgress(progress)
                             .withCompleted((100.0 * start) / contentLength)
-                            .withMultiplier((1.0 * totalBytes / chunkSize) / fileParts.size());
+                            .withMultiplier((1.0 * totalBytes / (Math.min(contentLength, chunkSize))) / fileParts.size());
                 }
 
                 GetObjectRequest req = new GetObjectRequest(bucket, key)
