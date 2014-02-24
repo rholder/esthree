@@ -16,8 +16,8 @@
 
 package com.github.rholder.esthree.util;
 
+import org.junit.Assert;
 import org.junit.Test;
-import org.testng.Assert;
 
 import java.util.List;
 
