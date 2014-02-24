@@ -20,7 +20,8 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.github.rholder.esthree.command.GetMultipart;
-import com.github.rholder.esthree.util.PrintingProgressListener;
+import com.github.rholder.esthree.progress.MutableProgressListener;
+import com.github.rholder.esthree.progress.PrintingProgressListener;
 import com.github.rholder.esthree.util.S3PathUtils;
 
 import java.io.File;
@@ -83,7 +84,7 @@ public class GetMultipartCommand implements Command {
         }
 
         try {
-            PrintingProgressListener progressListener = null;
+            MutableProgressListener progressListener = null;
             if(progress) {
                 progressListener = new PrintingProgressListener(output);
             }

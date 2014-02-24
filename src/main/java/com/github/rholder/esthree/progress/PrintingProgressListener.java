@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package com.github.rholder.esthree.util;
+package com.github.rholder.esthree.progress;
 
 import com.amazonaws.event.ProgressEvent;
-import com.github.rholder.esthree.progress.MutableProgressListener;
-import com.github.rholder.esthree.progress.Progress;
 
 import java.io.PrintStream;
 

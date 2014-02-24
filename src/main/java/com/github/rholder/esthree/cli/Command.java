@@ -23,12 +23,12 @@ public interface Command {
      *
      * @return name of the command
      */
-    public String getName();
+    String getName();
 
     /**
      * Execute the given command and return a 0 for success or non-zero for a failure.
      *
      * @return zero on success, non-zero on failure
      */
-    public int execute();
+    int execute();
 }

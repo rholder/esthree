@@ -19,8 +19,8 @@ package com.github.rholder.esthree.command;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.Upload;
+import com.github.rholder.esthree.progress.MutableProgressListener;
 import com.github.rholder.esthree.progress.TransferProgressWrapper;
-import com.github.rholder.esthree.util.PrintingProgressListener;
 
 import java.io.File;
 import java.util.concurrent.Callable;
@@ -32,7 +32,7 @@ public class Put implements Callable<Integer> {
     public String key;
     public File inputFile;
 
-    public PrintingProgressListener progressListener;
+    public MutableProgressListener progressListener;
 
     public Put(AmazonS3Client amazonS3Client, String bucket, String key, File inputFile) {
         this.amazonS3Client = amazonS3Client;
@@ -41,7 +41,7 @@ public class Put implements Callable<Integer> {
         this.inputFile = inputFile;
     }
 
-    public Put withProgressListener(PrintingProgressListener progressListener) {
+    public Put withProgressListener(MutableProgressListener progressListener) {
         this.progressListener = progressListener;
         return this;
     }
