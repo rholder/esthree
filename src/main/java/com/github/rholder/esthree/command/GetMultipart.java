@@ -17,7 +17,6 @@
 package com.github.rholder.esthree.command;
 
 import com.amazonaws.AmazonClientException;
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.event.ProgressEvent;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.GetObjectRequest;
@@ -102,7 +101,8 @@ public class GetMultipart implements Callable<Integer> {
         String fullETag = om.getETag();
         if (!fullETag.contains("-")) {
             byte[] expected = BinaryUtils.fromHex(fullETag);
-            if (!Arrays.equals(currentDigest.digest(), expected)) {
+            byte[] current = currentDigest.digest();
+            if (!Arrays.equals(expected, current)) {
                 throw new AmazonClientException("Unable to verify integrity of data download.  "
                         + "Client calculated content hash didn't match hash calculated by Amazon S3.  "
                         + "The data may be corrupt.");
@@ -136,7 +136,7 @@ public class GetMultipart implements Callable<Integer> {
                 GetObjectRequest req = new GetObjectRequest(bucket, key)
                         .withRange(start, end);
 
-                S3Object s3Object = new AmazonS3Client(new DefaultAWSCredentialsProviderChain()).getObject(req);
+                S3Object s3Object = amazonS3Client.getObject(req);
                 InputStream input = null;
                 try {
                     // seek to the start of the chunk in the file, just in case we're retrying
