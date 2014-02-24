@@ -100,6 +100,7 @@ public class GetMultipart implements Callable<Integer> {
             currentDigest = retryingGetWithRange(fp.start, fp.end);
         }
 
+        // TODO fix total content length progress bar
         if(progressListener != null) {
             progressListener.progressChanged(new ProgressEvent(ProgressEvent.COMPLETED_EVENT_CODE, 0));
         }
