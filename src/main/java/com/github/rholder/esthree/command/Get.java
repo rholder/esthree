@@ -19,6 +19,7 @@ package com.github.rholder.esthree.command;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.transfer.Download;
 import com.amazonaws.services.s3.transfer.TransferManager;
+import com.github.rholder.esthree.progress.TransferProgressWrapper;
 import com.github.rholder.esthree.util.PrintingProgressListener;
 
 import java.io.File;
@@ -50,7 +51,7 @@ public class Get implements Callable<Integer> {
         TransferManager t = new TransferManager(amazonS3Client);
         Download d = t.download(bucket, key, outputFile);
         if (progressListener != null) {
-            progressListener.withTransferProgress(d.getProgress());
+            progressListener.withTransferProgress(new TransferProgressWrapper(d.getProgress()));
             d.addProgressListener(progressListener);
         }
         d.waitForCompletion();

@@ -24,7 +24,9 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.transfer.internal.TransferProgressImpl;
 import com.amazonaws.util.BinaryUtils;
-import com.github.rholder.esthree.util.PrintingProgressListener;
+import com.github.rholder.esthree.progress.MutableProgressListener;
+import com.github.rholder.esthree.progress.Progress;
+import com.github.rholder.esthree.progress.TransferProgressWrapper;
 import com.github.rholder.esthree.util.RetryUtils;
 import com.github.rholder.retry.RetryException;
 import org.apache.commons.io.IOUtils;
@@ -55,7 +57,7 @@ public class GetMultipart implements Callable<Integer> {
     public RandomAccessFile output;
 
     private Integer chunkSize;
-    private PrintingProgressListener progressListener;
+    private MutableProgressListener progressListener;
 
     private MessageDigest currentDigest;
     private List<FilePart> fileParts;
@@ -68,7 +70,7 @@ public class GetMultipart implements Callable<Integer> {
         this.output = new RandomAccessFile(outputFile, "rw");
     }
 
-    public GetMultipart withProgressListener(PrintingProgressListener progressListener) {
+    public GetMultipart withProgressListener(MutableProgressListener progressListener) {
         this.progressListener = progressListener;
         return this;
     }
@@ -124,12 +126,12 @@ public class GetMultipart implements Callable<Integer> {
             public MessageDigest call() throws Exception {
 
                 long totalBytes = end - start + 1;
-                TransferProgressImpl transferProgress = new TransferProgressImpl();
-                transferProgress.setTotalBytesToTransfer(totalBytes);
+                Progress progress = new TransferProgressWrapper(new TransferProgressImpl());
+                progress.setTotalBytesToTransfer(totalBytes);
 
                 if (progressListener != null) {
-                    progressListener.withTransferProgress(transferProgress)
-                            .withCompleted(start / (100.0 * contentLength))
+                    progressListener.withTransferProgress(progress)
+                            .withCompleted((100.0 * start) / contentLength)
                             .withMultiplier((1.0 * totalBytes / chunkSize) / fileParts.size());
                 }
 
@@ -143,7 +145,7 @@ public class GetMultipart implements Callable<Integer> {
                     output.seek(start);
                     input = s3Object.getObjectContent();
 
-                    return copyAndHash(input, totalBytes, transferProgress);
+                    return copyAndHash(input, totalBytes, progress);
                 } finally {
                     IOUtils.closeQuietly(input);
                 }
@@ -151,7 +153,7 @@ public class GetMultipart implements Callable<Integer> {
         });
     }
 
-    public MessageDigest copyAndHash(InputStream input, long totalBytes, TransferProgressImpl transferProgress)
+    public MessageDigest copyAndHash(InputStream input, long totalBytes, Progress progress)
             throws IOException, CloneNotSupportedException {
 
         // clone the current digest, such that it remains unchanged in this method
@@ -163,7 +165,7 @@ public class GetMultipart implements Callable<Integer> {
         while (-1 != (n = input.read(buffer))) {
             output.write(buffer, 0, n);
             if (progressListener != null) {
-                transferProgress.updateProgress(n);
+                progress.updateProgress(n);
                 progressListener.progressChanged(new ProgressEvent(n));
             }
             computedDigest.update(buffer, 0, n);

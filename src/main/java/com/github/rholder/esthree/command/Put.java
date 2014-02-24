@@ -19,6 +19,7 @@ package com.github.rholder.esthree.command;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.Upload;
+import com.github.rholder.esthree.progress.TransferProgressWrapper;
 import com.github.rholder.esthree.util.PrintingProgressListener;
 
 import java.io.File;
@@ -51,7 +52,7 @@ public class Put implements Callable<Integer> {
         Upload u = t.upload(bucket, key, inputFile);
 
         if (progressListener != null) {
-            progressListener.withTransferProgress(u.getProgress());
+            progressListener.withTransferProgress(new TransferProgressWrapper(u.getProgress()));
             u.addProgressListener(progressListener);
         }
         u.waitForCompletion();

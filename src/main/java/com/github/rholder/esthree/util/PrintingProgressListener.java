@@ -17,8 +17,8 @@
 package com.github.rholder.esthree.util;
 
 import com.amazonaws.event.ProgressEvent;
-import com.amazonaws.event.ProgressListener;
-import com.amazonaws.services.s3.transfer.TransferProgress;
+import com.github.rholder.esthree.progress.MutableProgressListener;
+import com.github.rholder.esthree.progress.Progress;
 
 import java.io.PrintStream;
 
@@ -27,9 +27,9 @@ import static com.github.rholder.esthree.util.ProgressBar.humanReadableByteCount
 import static com.google.common.primitives.Ints.saturatedCast;
 import static java.lang.Math.round;
 
-public class PrintingProgressListener implements ProgressListener {
+public class PrintingProgressListener implements MutableProgressListener {
 
-    public volatile TransferProgress transferProgress;
+    public volatile Progress progress;
     public PrintStream out;
     public Double completed;
     public Double multiplier;
@@ -40,8 +40,8 @@ public class PrintingProgressListener implements ProgressListener {
         this.completed = 0.0;
     }
 
-    public PrintingProgressListener withTransferProgress(TransferProgress transferProgress) {
-        this.transferProgress = transferProgress;
+    public PrintingProgressListener withTransferProgress(Progress progress) {
+        this.progress = progress;
         return this;
     }
 
@@ -58,8 +58,8 @@ public class PrintingProgressListener implements ProgressListener {
     @Override
     public void progressChanged(ProgressEvent progressEvent) {
         out.print(String.format("%1$s %2$10s / %3$s\r",
-                generate(saturatedCast(round(completed + (transferProgress.getPercentTransferred() * multiplier)))),
-                humanReadableByteCount(transferProgress.getBytesTransferred(), true),
-                humanReadableByteCount(transferProgress.getTotalBytesToTransfer(), true)));
+                generate(saturatedCast(round(completed + (progress.getPercentTransferred() * multiplier)))),
+                humanReadableByteCount(progress.getBytesTransferred(), true),
+                humanReadableByteCount(progress.getTotalBytesToTransfer(), true)));
     }
 }

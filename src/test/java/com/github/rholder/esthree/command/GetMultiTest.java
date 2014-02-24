@@ -1,3 +1,19 @@
+/*
+ * Copyright 2014 Ray Holder
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.github.rholder.esthree.command;
 
 import com.amazonaws.services.s3.AmazonS3Client;
@@ -6,6 +22,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.github.rholder.esthree.util.FileChunker;
+import com.github.rholder.esthree.util.PrintingProgressListener;
 import com.google.common.primitives.Ints;
 import org.apache.commons.io.IOUtils;
 import org.apache.ivy.util.StringUtils;
@@ -13,6 +30,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,8 +50,30 @@ public class GetMultiTest {
 
     @Test
     public void happyGetMulti() throws Exception {
+        AmazonS3Client client = createMockedClient();
+
         File tmpFile = File.createTempFile("testFile", ".test");
         tmpFile.deleteOnExit();
+
+        GetMultipart gm = new GetMultipart(client, "testBucket", "testKey", tmpFile);
+        gm.withChunkSize(CHUNK_SIZE);
+        gm.call();
+    }
+
+    @Test
+    public void happyGetMultiWithProgress() throws Exception {
+        AmazonS3Client client = createMockedClient();
+
+        File tmpFile = File.createTempFile("testFile", ".test");
+        tmpFile.deleteOnExit();
+
+        GetMultipart gm = new GetMultipart(client, "testBucket", "testKey", tmpFile);
+        gm.withChunkSize(CHUNK_SIZE);
+        gm.withProgressListener(new PrintingProgressListener(System.out));
+        gm.call();
+    }
+
+    public AmazonS3Client createMockedClient() throws IOException {
 
         // mock the ObjectMetadata for a 100 bytes of a's
         ObjectMetadata om = mock(ObjectMetadata.class);
@@ -59,8 +99,6 @@ public class GetMultiTest {
         when(client.getObjectMetadata(anyString(), anyString())).thenReturn(om);
         when(client.getObject(any(GetObjectRequest.class))).thenReturn(os.get(0), os.get(1), os.get(2), os.get(3), os.get(4));
 
-        GetMultipart gm = new GetMultipart(client, "testBucket", "testKey", tmpFile);
-        gm.withChunkSize(CHUNK_SIZE);
-        gm.call();
+        return client;
     }
 }
