@@ -32,7 +32,7 @@ import java.util.Map;
 
 public class Main {
 
-    public static final String HEADER = "esthree 0.1.1 - An S3 client that just works.\n\n";
+    public static final String HEADER = "esthree %s - An S3 client that just works.\n\n";
 
     public static final AmazonS3Client AMAZON_S3_CLIENT = new AmazonS3Client(new DefaultAWSCredentialsProviderChain());
 
@@ -63,10 +63,15 @@ public class Main {
             System.exit(ret);
         } else {
             // TODO this looks awful, just print the general help manually
-            StringBuilder usage = new StringBuilder(HEADER);
+            StringBuilder usage = new StringBuilder(String.format(HEADER, getVersion()));
             jc.usage(usage);
             System.out.println(usage);
             System.exit(1);
         }
+    }
+
+    public static String getVersion() {
+        // TODO pull this from the manifest
+        return "0.1.1";
     }
 }
