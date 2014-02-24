@@ -1,3 +1,15 @@
+/** Function always returns a new Closure that can be customized */
+def defaultManifest() {
+    return manifest{
+        def git_cmd = "git rev-parse HEAD"
+        def git_proc = git_cmd.execute()
+        attributes 'SCM-Revision': git_proc.text.trim()
+        attributes 'Timestamp': String.valueOf(System.currentTimeMillis())
+        attributes 'Build-Host': InetAddress.localHost.hostName
+        attributes 'Release-Version': version
+    }
+}
+
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'gradle-autojar'
@@ -44,6 +56,7 @@ task autojarJar(type: Autojar) {
     description = "Generate a stripped down Autojar'd executable jar"
 
     mainClass = "com.github.rholder.esthree.Main"
+    manifest = defaultManifest()
 
     autojarFiles = [
             "com/amazonaws/sdk/versionInfo.properties",
@@ -74,9 +87,9 @@ task repackedJar(type: Exec, dependsOn: autojarJar) {
     }
 }
 
-task executableBinary(dependsOn: repackedJar) {
+task packedExecutableBinary(dependsOn: repackedJar) {
     group = "Distribution"
-    description = "Create a distributable standalone executable binary"
+    description = "Create a distributable standalone executable binary that's been stripped of all debug info"
 
     def outputDir = new File(buildDir, "executable")
     outputs.dir outputDir
@@ -95,9 +108,9 @@ task executableBinary(dependsOn: repackedJar) {
     }
 }
 
-task debugBinary(dependsOn: autojarJar) {
+task executableBinary(dependsOn: autojarJar) {
     group = "Distribution"
-    description = "Create a distributable standalone executable binary with Debug info"
+    description = "Create a distributable standalone executable binary"
 
     def outputDir = new File(buildDir, "executable")
     outputs.dir outputDir
