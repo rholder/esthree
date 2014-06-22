@@ -16,49 +16,34 @@
 
 package com.github.rholder.esthree.cli;
 
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
 import com.github.rholder.esthree.command.Put;
 import com.github.rholder.esthree.progress.MutableProgressListener;
 import com.github.rholder.esthree.progress.PrintingProgressListener;
 import com.github.rholder.esthree.util.S3PathUtils;
+import io.airlift.command.Arguments;
+import io.airlift.command.Command;
+import io.airlift.command.Option;
 
 import java.io.File;
-import java.io.PrintStream;
 import java.util.List;
 
-@Parameters(commandNames = {PutCommand.NAME}, separators = " ")
-public class PutCommand implements Command {
+@Command(name = "put", description = "List the target bucket with an optional prefix")
+public class PutCommand extends EsthreeCommand {
 
-    public static final String NAME = "put";
-
-    public AmazonS3Client amazonS3Client;
-    public PrintStream output;
-
-    public PutCommand(AmazonS3Client amazonS3Client, PrintStream output) {
-        this.amazonS3Client = amazonS3Client;
-        this.output = output;
-    }
-
-    @Parameter(names = {"-np", "--no-progress"}, description = "Don't print a progress bar")
+    @Option(name = {"-np", "--no-progress"}, description = "Don't print a progress bar")
     public Boolean progress;
 
-    @Parameter(description = "[filename] [target bucket and key]\n      Upload a file to S3 with the target bucket and optionally the key, as in \"foo.txt s3://bucket/foo.html\"", required = true, arity = 1)
+    @Arguments(description = "Upload a file to S3 with the target bucket and optionally the key, as in \"foo.txt s3://bucket/foo.html\"",
+            usage = "[filename] [target bucket and key]", required = true)
     public List<String> parameters;
 
     @Override
-    public String getName() {
-        return NAME;
-    }
-
-    @Override
-    public int execute() {
+    public void run() {
 
         // TODO foo s3://bucket  <--- support this?
         if(parameters.size() != 2) {
             output.print("Invalid number of arguments");
-            return 1;
+            throw new RuntimeException("Invalid number of arguments");
         }
         File outputFile = new File(parameters.get(0));
 
@@ -79,13 +64,11 @@ public class PutCommand implements Command {
                 progressListener = new PrintingProgressListener(output);
             }
 
-            return new Put(amazonS3Client, bucket, key, outputFile)
+            new Put(amazonS3Client, bucket, key, outputFile)
                     .withProgressListener(progressListener)
                     .call();
         } catch (Exception e) {
-            // TODO print message to stderr?
-            e.printStackTrace();
-            return 1;
+            throw new RuntimeException(e);
         }
     }
 }

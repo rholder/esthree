@@ -18,7 +18,7 @@ sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
 group = 'com.github.rholder'
-version = '0.1.2-SNAPSHOT'
+version = '0.2.0-SNAPSHOT'
 ext.packaging = 'jar'
 
 buildscript {
@@ -36,9 +36,9 @@ repositories {
 
 dependencies {
     compile "com.amazonaws:aws-java-sdk:1.6.9.1"
-    compile "com.beust:jcommander:1.32"
-    compile "com.github.rholder:guava-retrying:1.0.5"
+    compile "com.github.rholder:guava-retrying:1.0.6"
     compile "commons-io:commons-io:2.4"
+    compile "io.airlift:airline:0.6"
 
     runtime "org.slf4j:slf4j-simple:1.7.5"
 

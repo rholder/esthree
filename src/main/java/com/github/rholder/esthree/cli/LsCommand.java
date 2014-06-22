@@ -16,46 +16,37 @@
 
 package com.github.rholder.esthree.cli;
 
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
 import com.github.rholder.esthree.command.Ls;
-import com.github.rholder.esthree.util.BigIntegerConverter;
 import com.github.rholder.esthree.util.S3PathUtils;
+import io.airlift.command.Arguments;
+import io.airlift.command.Command;
+import io.airlift.command.Option;
 
-import java.io.PrintStream;
 import java.math.BigInteger;
 import java.util.List;
 
-@Parameters(commandNames = {LsCommand.NAME}, separators = " ")
-public class LsCommand implements Command {
+@Command(name = "ls", description = "List the target bucket with an optional prefix")
+public class LsCommand extends EsthreeCommand {
 
-    public static final String NAME = "ls";
-
-    public AmazonS3Client amazonS3Client;
-    public PrintStream output;
-
-    public LsCommand(AmazonS3Client amazonS3Client, PrintStream output) {
-        this.amazonS3Client = amazonS3Client;
-        this.output = output;
-    }
-
-    @Parameter(names = {"-l", "--limit"}, description = "Limit the number of returned results (unlimited by default)", converter = BigIntegerConverter.class)
+    @Option(name = {"-l", "--limit"}, arity = 1,
+            description = "Limit the number of returned results (unlimited by default)")
     public BigInteger limit;
 
-    @Parameter(names = {"-lf", "--list-format"}, description = "The list format to use")
+    @Option(name = {"-lf", "--list-format"}, arity = 1, title = "format",
+            description = "The list format to use for displaying normal keys, defaulting to \""+ Ls.DEFAULT_LIST_FORMAT +"\"")
     public String listFormat;
 
-    @Parameter(description = "[target bucket and key]\n      List the target bucket (with an optional prefix), as in \"s3://bucket\" or \"s3://bucket/prefix\"", required = true, arity = 1)
+    @Option(name = {"-ldf", "--list-directory-format"}, arity = 1, title = "format",
+            description = "The list directory format to use for displaying directories, defaulting to \"" + Ls.DEFAULT_LIST_DIR_FORMAT + "\"")
+    public String listDirFormat;
+
+    @Arguments(usage = "[target bucket and optional prefix]",
+            description = "List the target bucket (with an optional prefix), as in \"s3://bucket\" or \"s3://bucket/prefix\"",
+            required = true)
     public List<String> parameters;
 
     @Override
-    public String getName() {
-        return NAME;
-    }
-
-    @Override
-    public int execute() {
+    public void run() {
         String target = parameters.get(0);
         String bucket = S3PathUtils.getBucket(target);
         String prefix = S3PathUtils.getPrefix(target);
@@ -67,15 +58,19 @@ public class LsCommand implements Command {
                     .withLimit(limit)
                     .withPrintStream(output);
 
-            if(listFormat != null) {
+            if (listFormat != null) {
                 ls.withListFormat(listFormat);
             }
 
-            return ls.call();
+            if(listDirFormat != null) {
+                ls.withListDirFormat(listDirFormat);
+            }
+
+            // TODO add withListDirFormat customization?
+
+            ls.call();
         } catch (Exception e) {
-            // TODO print message to stderr?
-            e.printStackTrace();
-            return 1;
+            throw new RuntimeException(e);
         }
     }
 }

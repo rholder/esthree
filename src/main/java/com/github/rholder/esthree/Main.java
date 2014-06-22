@@ -18,60 +18,41 @@ package com.github.rholder.esthree;
 
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.beust.jcommander.JCommander;
-import com.github.rholder.esthree.cli.Command;
+import com.github.rholder.esthree.cli.EsthreeCommand;
 import com.github.rholder.esthree.cli.GetCommand;
 import com.github.rholder.esthree.cli.GetMultipartCommand;
+import com.github.rholder.esthree.cli.HelpCommand;
 import com.github.rholder.esthree.cli.LsCommand;
 import com.github.rholder.esthree.cli.PutCommand;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import io.airlift.command.Cli;
 
 public class Main {
 
     public static final String HEADER = "esthree %s - An S3 client that just works.\n\n";
 
-    public static final AmazonS3Client AMAZON_S3_CLIENT = new AmazonS3Client(new DefaultAWSCredentialsProviderChain());
-
-    public static final List<Command> COMMAND_LIST = new ArrayList<Command>() {{
-        add(new LsCommand(AMAZON_S3_CLIENT, System.out));
-        add(new GetCommand(AMAZON_S3_CLIENT, System.out));
-        add(new PutCommand(AMAZON_S3_CLIENT, System.out));
-        add(new GetMultipartCommand(AMAZON_S3_CLIENT, System.out));
-    }};
-
-    public static void main(String[] args) throws Exception {
-
-        JCommander jc = new JCommander();
-        jc.setProgramName("esthree");
-
-        // load up all the available commands
-        Map<String, Command> commands = new HashMap<String, Command>();
-        for(Command c : COMMAND_LIST) {
-            jc.addCommand(c);
-            commands.put(c.getName(), c);
-        }
-        jc.parse(args);
-
-        // dispatch and run a command
-        Command command = commands.get(jc.getParsedCommand());
-        if (command != null) {
-            int ret = command.execute();
-            System.exit(ret);
-        } else {
-            // TODO this looks awful, just print the general help manually
-            StringBuilder usage = new StringBuilder(String.format(HEADER, getVersion()));
-            jc.usage(usage);
-            System.out.println(usage);
-            System.exit(1);
-        }
-    }
-
     public static String getVersion() {
         // TODO pull this from the manifest
-        return "0.1.2-SNAPSHOT";
+        return "0.2.0-SNAPSHOT";
+    }
+
+    @SuppressWarnings("unchecked")
+    public static void main(String... args) {
+        Cli<Runnable> a = Cli.<Runnable>builder("esthree")
+                .withDescription(String.format(HEADER, getVersion()))
+                .withDefaultCommand(HelpCommand.class)
+                .withCommands(HelpCommand.class, GetCommand.class, GetMultipartCommand.class, LsCommand.class, PutCommand.class)
+                .build();
+
+        try {
+            Runnable b = a.parse(args);
+            if(b instanceof EsthreeCommand) {
+                EsthreeCommand c = (EsthreeCommand)b;
+                c.amazonS3Client = new AmazonS3Client(new DefaultAWSCredentialsProviderChain());
+                c.output = System.out;
+            }
+            b.run();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -16,49 +16,33 @@
 
 package com.github.rholder.esthree.cli;
 
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
 import com.github.rholder.esthree.command.GetMultipart;
 import com.github.rholder.esthree.progress.MutableProgressListener;
 import com.github.rholder.esthree.progress.PrintingProgressListener;
 import com.github.rholder.esthree.util.S3PathUtils;
+import io.airlift.command.Arguments;
+import io.airlift.command.Command;
+import io.airlift.command.Option;
 
 import java.io.File;
-import java.io.PrintStream;
 import java.util.List;
 
 import static org.apache.commons.io.FilenameUtils.getPrefixLength;
 
-@Parameters(commandNames = {GetMultipartCommand.NAME}, separators = " ")
-public class GetMultipartCommand implements Command {
+@Command(name = "get-multi", description = "Download a file from S3, but download in multiple parts")
+public class GetMultipartCommand extends EsthreeCommand {
 
-    public static final String NAME = "get-multi";
-
-    public AmazonS3Client amazonS3Client;
-    public PrintStream output;
-
-    public GetMultipartCommand(AmazonS3Client amazonS3Client, PrintStream output) {
-        this.amazonS3Client = amazonS3Client;
-        this.output = output;
-    }
-
-    @Parameter(names = {"-c", "--chunk-size"}, description = "The request chunk size in bytes (e.g. 10485760 for 10MB chunks), defaults to 5MB")
+    @Option(name = {"-c", "--chunk-size"}, arity = 1, description = "The request chunk size in bytes (e.g. 10485760 for 10MB chunks), defaults to 5MB")
     public Integer chunkSize;
 
-    @Parameter(names = {"-np", "--no-progress"}, description = "Don't print a progress bar")
+    @Option(name = {"-np", "--no-progress"}, description = "Don't print a progress bar")
     public Boolean progress;
 
-    @Parameter(description = "[target bucket and key]\n      Download a file from S3 with the target bucket and key, as in \"s3://bucket/foo.html\"", required = true, arity = 1)
+    @Arguments(description = "[target bucket and key]", usage = "The target bucket and key, as in \"s3://bucket/foo.html\"", required = true)
     public List<String> parameters;
 
     @Override
-    public String getName() {
-        return NAME;
-    }
-
-    @Override
-    public int execute() {
+    public void run() {
         String target = parameters.get(0);
         String bucket = S3PathUtils.getBucket(target);
         String key = S3PathUtils.getPrefix(target);
@@ -89,14 +73,12 @@ public class GetMultipartCommand implements Command {
                 progressListener = new PrintingProgressListener(output);
             }
 
-            return new GetMultipart(amazonS3Client, bucket, key, outputFile)
+            new GetMultipart(amazonS3Client, bucket, key, outputFile)
                     .withChunkSize(chunkSize)
                     .withProgressListener(progressListener)
                     .call();
         } catch (Exception e) {
-            // TODO print message to stderr?
-            e.printStackTrace();
-            return 1;
+            throw new RuntimeException(e);
         }
     }
 }
