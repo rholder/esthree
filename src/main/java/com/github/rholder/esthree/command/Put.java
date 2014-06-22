@@ -51,11 +51,16 @@ public class Put implements Callable<Integer> {
         TransferManager t = new TransferManager(amazonS3Client);
         Upload u = t.upload(bucket, key, inputFile);
 
+        // TODO this listener spews out garbage >100% on a retry, add a test to verify
         if (progressListener != null) {
             progressListener.withTransferProgress(new TransferProgressWrapper(u.getProgress()));
             u.addProgressListener(progressListener);
         }
-        u.waitForCompletion();
+        try {
+            u.waitForCompletion();
+        } finally {
+            t.shutdownNow();
+        }
         return 0;
     }
 }
