@@ -32,6 +32,7 @@ public class Ls implements Callable<Integer> {
 
     // that's pretty close to s3cmd
     public static final String DEFAULT_LIST_FORMAT = "%1$tF %1$tR %2$9s   s3://%3$s/%4$s";
+    public static final String DEFAULT_LIST_DIR_FORMAT = "%1$26s   s3://%2$s/%3$s";
 
     public static final Integer AWS_MAX_KEYS = 1000;
 
@@ -44,6 +45,7 @@ public class Ls implements Callable<Integer> {
     public BigInteger limit;
 
     public String listFormat = DEFAULT_LIST_FORMAT;
+    public String listDirFormat = DEFAULT_LIST_DIR_FORMAT;
     public PrintStream printStream;
 
     public Ls(AmazonS3Client amazonS3Client, String bucket) {
@@ -63,6 +65,11 @@ public class Ls implements Callable<Integer> {
 
     public Ls withListFormat(String listFormat) {
         this.listFormat = listFormat;
+        return this;
+    }
+
+    public Ls withListDirFormat(String listDirFormat) {
+        this.listDirFormat = listDirFormat;
         return this;
     }
 
@@ -87,6 +94,9 @@ public class Ls implements Callable<Integer> {
 
             if(nextLimit > 0) {
                 ObjectListing o = list(nextMarker, nextLimit);
+                for(String dir : o.getCommonPrefixes()) {
+                    printStream.println(String.format(listDirFormat, "DIR", o.getBucketName(), dir));
+                }
                 for (S3ObjectSummary os : o.getObjectSummaries()) {
                     if (limit == null || count.compareTo(limit) <= 0) {
                         printStream.println(String.format(listFormat,
@@ -126,6 +136,7 @@ public class Ls implements Callable<Integer> {
                 ListObjectsRequest lor = new ListObjectsRequest()
                         .withBucketName(bucket)
                         .withMarker(marker)
+                        .withDelimiter("/")
                         .withMaxKeys(limit);
                 if (prefix != null) {
                     lor.withPrefix(prefix);
