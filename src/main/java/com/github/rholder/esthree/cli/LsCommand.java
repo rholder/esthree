@@ -25,6 +25,9 @@ import io.airlift.command.Option;
 import java.math.BigInteger;
 import java.util.List;
 
+import static com.google.common.base.Objects.firstNonNull;
+import static java.util.Collections.emptyList;
+
 @Command(name = "ls", description = "List the target bucket with an optional prefix")
 public class LsCommand extends EsthreeCommand {
 
@@ -47,10 +50,20 @@ public class LsCommand extends EsthreeCommand {
 
     @Override
     public void run() {
+        if(help) {
+            showUsage(commandMetadata);
+            return;
+        }
+
+        if(firstNonNull(parameters, emptyList()).size() == 0) {
+            showUsage(commandMetadata);
+            throw new IllegalArgumentException("No arguments specified");
+        }
+
         String target = parameters.get(0);
         String bucket = S3PathUtils.getBucket(target);
         String prefix = S3PathUtils.getPrefix(target);
-        // TODO validate params here
+        // TODO validate ls params here
 
         try {
             Ls ls = new Ls(amazonS3Client, bucket)

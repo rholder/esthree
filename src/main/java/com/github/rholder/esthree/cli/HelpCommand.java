@@ -5,19 +5,17 @@ import io.airlift.command.Command;
 import io.airlift.command.CommandGroupUsage;
 import io.airlift.command.CommandUsage;
 import io.airlift.command.GlobalUsage;
-import io.airlift.command.GlobalUsageSummary;
 import io.airlift.command.model.CommandGroupMetadata;
 import io.airlift.command.model.CommandMetadata;
 import io.airlift.command.model.GlobalMetadata;
 
 import javax.inject.Inject;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import static com.google.common.collect.Lists.newArrayList;
 
 @Command(name = "help", description = "Display help information, such as \"help get\"", hidden = true)
-public class HelpCommand implements Runnable, Callable<Void> {
+public class HelpCommand extends EsthreeCommand {
 
     @Inject
     public GlobalMetadata global;
@@ -30,12 +28,6 @@ public class HelpCommand implements Runnable, Callable<Void> {
         help(global, command);
     }
 
-    @Override
-    public Void call() {
-        run();
-        return null;
-    }
-
     public static void help(GlobalMetadata global, List<String> commandNames) {
         StringBuilder stringBuilder = new StringBuilder();
         help(global, commandNames, stringBuilder);
@@ -44,6 +36,7 @@ public class HelpCommand implements Runnable, Callable<Void> {
 
     public static void help(GlobalMetadata global, List<String> commandNames, StringBuilder out) {
         if (commandNames.isEmpty()) {
+            // TODO add header here?
             new GlobalUsage().usage(global, out);
             //new GlobalUsageSummary().usage(global, out);
             return;

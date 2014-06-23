@@ -27,6 +27,8 @@ import io.airlift.command.Option;
 import java.io.File;
 import java.util.List;
 
+import static com.google.common.base.Objects.firstNonNull;
+import static java.util.Collections.emptyList;
 import static org.apache.commons.io.FilenameUtils.getPrefixLength;
 
 @Command(name = "get-multi", description = "Download a file from S3, but download in multiple parts")
@@ -43,12 +45,22 @@ public class GetMultipartCommand extends EsthreeCommand {
 
     @Override
     public void run() {
+        if(help) {
+            showUsage(commandMetadata);
+            return;
+        }
+
+        if(firstNonNull(parameters, emptyList()).size() == 0) {
+            showUsage(commandMetadata);
+            throw new IllegalArgumentException("No arguments specified");
+        }
+
         String target = parameters.get(0);
         String bucket = S3PathUtils.getBucket(target);
         String key = S3PathUtils.getPrefix(target);
         progress = progress == null;
 
-        // TODO validate params here
+        // TODO validate get-multi params here
         File outputFile;
         if(parameters.size() > 1) {
             outputFile = new File(parameters.get(1));

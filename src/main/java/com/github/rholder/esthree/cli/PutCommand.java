@@ -23,12 +23,20 @@ import com.github.rholder.esthree.util.S3PathUtils;
 import io.airlift.command.Arguments;
 import io.airlift.command.Command;
 import io.airlift.command.Option;
+import io.airlift.command.model.CommandMetadata;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.util.List;
 
+import static com.google.common.base.Objects.firstNonNull;
+import static java.util.Collections.emptyList;
+
 @Command(name = "put", description = "List the target bucket with an optional prefix")
 public class PutCommand extends EsthreeCommand {
+
+    @Inject
+    public CommandMetadata commandMetadata;
 
     @Option(name = {"-np", "--no-progress"}, description = "Don't print a progress bar")
     public Boolean progress;
@@ -39,6 +47,15 @@ public class PutCommand extends EsthreeCommand {
 
     @Override
     public void run() {
+        if(help) {
+            showUsage(commandMetadata);
+            return;
+        }
+
+        if(firstNonNull(parameters, emptyList()).size() == 0) {
+            showUsage(commandMetadata);
+            throw new IllegalArgumentException("No arguments specified");
+        }
 
         // TODO foo s3://bucket  <--- support this?
         if(parameters.size() != 2) {

@@ -16,6 +16,8 @@
 
 package com.github.rholder.esthree;
 
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.github.rholder.esthree.cli.EsthreeCommand;
@@ -25,10 +27,11 @@ import com.github.rholder.esthree.cli.HelpCommand;
 import com.github.rholder.esthree.cli.LsCommand;
 import com.github.rholder.esthree.cli.PutCommand;
 import io.airlift.command.Cli;
+import io.airlift.command.model.MetadataLoader;
 
 public class Main {
 
-    public static final String HEADER = "esthree %s - An S3 client that just works.\n\n";
+    public static final String HEADER = "%s - An S3 client that just works";
 
     public static String getVersion() {
         // TODO pull this from the manifest
@@ -37,22 +40,38 @@ public class Main {
 
     @SuppressWarnings("unchecked")
     public static void main(String... args) {
-        Cli<Runnable> a = Cli.<Runnable>builder("esthree")
+        Cli<EsthreeCommand> a = Cli.<EsthreeCommand>builder("esthree")
                 .withDescription(String.format(HEADER, getVersion()))
                 .withDefaultCommand(HelpCommand.class)
                 .withCommands(HelpCommand.class, GetCommand.class, GetMultipartCommand.class, LsCommand.class, PutCommand.class)
                 .build();
 
+        EsthreeCommand command = null;
         try {
-            Runnable b = a.parse(args);
-            if(b instanceof EsthreeCommand) {
-                EsthreeCommand c = (EsthreeCommand)b;
-                c.amazonS3Client = new AmazonS3Client(new DefaultAWSCredentialsProviderChain());
-                c.output = System.out;
+            command = a.parse(args);
+            command.commandMetadata = MetadataLoader.loadCommand(command.getClass());
+
+            // override if keys are specified
+            if(command.accessKey != null || command.secretKey != null) {
+                command.amazonS3Client = new AmazonS3Client(new BasicAWSCredentials(command.accessKey, command.secretKey));
+            } else {
+                command.amazonS3Client = new AmazonS3Client(new DefaultAWSCredentialsProviderChain());
             }
-            b.run();
+
+            // override S3 endpoint if specified
+            if(command.endpoint != null) {
+                command.amazonS3Client.setEndpoint(command.endpoint);
+            }
+
+            command.output = System.out;
+            command.run();
         } catch (Exception e) {
-            e.printStackTrace();
+            if(command != null && command.verbose) {
+                e.printStackTrace();
+            } else {
+                System.out.println(e.getMessage());
+            }
+            System.exit(1);
         }
     }
 }
