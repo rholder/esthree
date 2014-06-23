@@ -44,8 +44,7 @@ public class LsCommand extends EsthreeCommand {
     public String listDirFormat;
 
     @Arguments(usage = "[target bucket and optional prefix]",
-            description = "List the target bucket (with an optional prefix), as in \"s3://bucket\" or \"s3://bucket/prefix\"",
-            required = true)
+            description = "List the target bucket (with an optional prefix), as in \"s3://bucket\" or \"s3://bucket/prefix\"")
     public List<String> parameters;
 
     @Override

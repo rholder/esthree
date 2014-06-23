@@ -40,7 +40,7 @@ public class GetMultipartCommand extends EsthreeCommand {
     @Option(name = {"-np", "--no-progress"}, description = "Don't print a progress bar")
     public Boolean progress;
 
-    @Arguments(description = "[target bucket and key]", usage = "The target bucket and key, as in \"s3://bucket/foo.html\"", required = true)
+    @Arguments(description = "[target bucket and key]", usage = "The target bucket and key, as in \"s3://bucket/foo.html\"")
     public List<String> parameters;
 
     @Override

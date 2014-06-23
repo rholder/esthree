@@ -42,7 +42,7 @@ public class PutCommand extends EsthreeCommand {
     public Boolean progress;
 
     @Arguments(description = "Upload a file to S3 with the target bucket and optionally the key, as in \"foo.txt s3://bucket/foo.html\"",
-            usage = "[filename] [target bucket and key]", required = true)
+            usage = "[filename] [target bucket and key]")
     public List<String> parameters;
 
     @Override
