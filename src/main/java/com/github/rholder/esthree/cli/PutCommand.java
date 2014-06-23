@@ -23,9 +23,7 @@ import com.github.rholder.esthree.util.S3PathUtils;
 import io.airlift.command.Arguments;
 import io.airlift.command.Command;
 import io.airlift.command.Option;
-import io.airlift.command.model.CommandMetadata;
 
-import javax.inject.Inject;
 import java.io.File;
 import java.util.List;
 
@@ -34,9 +32,6 @@ import static java.util.Collections.emptyList;
 
 @Command(name = "put", description = "List the target bucket with an optional prefix")
 public class PutCommand extends EsthreeCommand {
-
-    @Inject
-    public CommandMetadata commandMetadata;
 
     @Option(name = {"-np", "--no-progress"}, description = "Don't print a progress bar")
     public Boolean progress;
