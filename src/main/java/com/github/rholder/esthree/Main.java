@@ -16,7 +16,6 @@
 
 package com.github.rholder.esthree;
 
-import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.s3.AmazonS3Client;
@@ -40,7 +39,7 @@ public class Main {
 
     @SuppressWarnings("unchecked")
     public static void main(String... args) {
-        Cli<EsthreeCommand> a = Cli.<EsthreeCommand>builder("esthree")
+        Cli<EsthreeCommand> cli = Cli.<EsthreeCommand>builder("esthree")
                 .withDescription(String.format(HEADER, getVersion()))
                 .withDefaultCommand(HelpCommand.class)
                 .withCommands(HelpCommand.class, GetCommand.class, GetMultipartCommand.class, LsCommand.class, PutCommand.class)
@@ -48,7 +47,7 @@ public class Main {
 
         EsthreeCommand command = null;
         try {
-            command = a.parse(args);
+            command = cli.parse(args);
             command.commandMetadata = MetadataLoader.loadCommand(command.getClass());
 
             // override if keys are specified
