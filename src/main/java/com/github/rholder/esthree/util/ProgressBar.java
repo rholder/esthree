@@ -29,6 +29,11 @@ public class ProgressBar {
     public static String generate(int percent) {
         StringBuilder bar = new StringBuilder("[");
 
+        // if this is over 100, then don't overflow
+        if(percent > 100) {
+            percent = 99;
+        }
+
         // 50 bars are 100%
         for (int i = 0; i < 50; i++) {
             if (i < (percent / 2)) {

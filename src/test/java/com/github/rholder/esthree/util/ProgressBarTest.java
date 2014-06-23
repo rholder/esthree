@@ -32,6 +32,14 @@ public class ProgressBarTest {
     }
 
     @Test
+    public void checkGenerateOverflow() throws InterruptedException {
+        for(int i = 0; i < 143; i++) {
+            System.out.print(generate(i) + "\r");
+            Thread.sleep(100);
+        }
+    }
+
+    @Test
     public void checkHumanReadable() {
         System.out.println(humanReadableByteCount(0, true));
         System.out.println(humanReadableByteCount(27, true));
