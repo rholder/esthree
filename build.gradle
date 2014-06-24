@@ -70,7 +70,6 @@ task autojarJar(type: Autojar) {
             "org.slf4j.impl.StaticMDCBinder",
             "org.apache.commons.logging.impl.SimpleLog",
             "org.apache.commons.logging.impl.LogFactoryImpl",
-            "com.beust.jcommander.converters.CommaParameterSplitter",
             "com.amazonaws.internal.config.HttpClientConfigJsonHelper"]
 }
 
