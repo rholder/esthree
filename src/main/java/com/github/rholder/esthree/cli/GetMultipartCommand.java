@@ -40,7 +40,7 @@ public class GetMultipartCommand extends EsthreeCommand {
     @Option(name = {"-np", "--no-progress"}, description = "Don't print a progress bar")
     public Boolean progress;
 
-    @Arguments(description = "[target bucket and key]", usage = "The target bucket and key, as in \"s3://bucket/foo.html\"")
+    @Arguments(usage = "<target bucket and key> [optional target file]", description = "The target bucket and key, as in \"s3://bucket/foo.html\"")
     public List<String> parameters;
 
     @Override
@@ -67,6 +67,10 @@ public class GetMultipartCommand extends EsthreeCommand {
         } else {
             // infer filename from file being fetched if unspecified
             String path = S3PathUtils.getPrefix(target);
+            if(path == null) {
+                throw new IllegalArgumentException("Could not determine target filename from " + target);
+            }
+
             int index = path.lastIndexOf(File.separatorChar);
             int prefixLength = getPrefixLength(path);
 
