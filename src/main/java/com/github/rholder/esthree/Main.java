@@ -34,7 +34,7 @@ public class Main {
 
     public static String getVersion() {
         // TODO pull this from the manifest
-        return "0.2.1-SNAPSHOT";
+        return "0.2.1";
     }
 
     @SuppressWarnings("unchecked")
