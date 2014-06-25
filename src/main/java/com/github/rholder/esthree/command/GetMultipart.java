@@ -54,6 +54,7 @@ public class GetMultipart implements Callable<Integer> {
     public AmazonS3Client amazonS3Client;
     public String bucket;
     public String key;
+    public File outputFile;
     public RandomAccessFile output;
 
     private Integer chunkSize;
@@ -67,7 +68,7 @@ public class GetMultipart implements Callable<Integer> {
         this.amazonS3Client = amazonS3Client;
         this.bucket = bucket;
         this.key = key;
-        this.output = new RandomAccessFile(outputFile, "rw");
+        this.outputFile = outputFile;
     }
 
     public GetMultipart withProgressListener(MutableProgressListener progressListener) {
@@ -146,6 +147,11 @@ public class GetMultipart implements Callable<Integer> {
                 S3Object s3Object = amazonS3Client.getObject(req);
                 InputStream input = null;
                 try {
+                    // create the output file, now that we know it actually exists
+                    if(output == null) {
+                        output = new RandomAccessFile(outputFile, "rw");
+                    }
+
                     // seek to the start of the chunk in the file, just in case we're retrying
                     output.seek(start);
                     input = s3Object.getObjectContent();

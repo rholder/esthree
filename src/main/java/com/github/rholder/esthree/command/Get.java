@@ -47,6 +47,7 @@ public class Get implements Callable<Integer> {
     public AmazonS3Client amazonS3Client;
     public String bucket;
     public String key;
+    public File outputFile;
     public RandomAccessFile output;
 
     private MutableProgressListener progressListener;
@@ -58,7 +59,7 @@ public class Get implements Callable<Integer> {
         this.amazonS3Client = amazonS3Client;
         this.bucket = bucket;
         this.key = key;
-        this.output = new RandomAccessFile(outputFile, "rw");
+        this.outputFile = outputFile;
     }
 
     public Get withProgressListener(MutableProgressListener progressListener) {
@@ -118,6 +119,11 @@ public class Get implements Callable<Integer> {
 
                 InputStream input = null;
                 try {
+                    // create the output file, now that we know it actually exists
+                    if(output == null) {
+                        output = new RandomAccessFile(outputFile, "rw");
+                    }
+
                     // seek to the start of the chunk in the file, just in case we're retrying
                     output.seek(0);
                     input = s3Object.getObjectContent();
