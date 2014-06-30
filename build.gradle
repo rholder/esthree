@@ -13,6 +13,8 @@ def defaultManifest() {
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'gradle-autojar'
+apply plugin: 'cobertura'
+apply plugin: 'coveralls'
 
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
@@ -27,8 +29,12 @@ buildscript {
     }
     dependencies {
         classpath 'com.github.rholder:gradle-autojar:1.0.1'
+        classpath 'net.saliman:gradle-cobertura-plugin:2.0.0'
+        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:0.5.0'
     }
 }
+
+cobertura.coverageFormats = ['html', 'xml'] // coveralls plugin depends on xml format report
 
 repositories {
     mavenCentral()
