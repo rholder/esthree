@@ -40,8 +40,13 @@ public class GetCommand extends EsthreeCommand {
     @Arguments(usage = "<target bucket and key> [optional target file]", description = "The target bucket and key, as in \"s3://bucket/foo.html\"")
     public List<String> parameters;
 
+    public String bucket;
+    public String key;
+    public MutableProgressListener progressListener;
+    public File outputFile;
+
     @Override
-    public void run() {
+    public void parse() {
         if(help) {
             showUsage(commandMetadata);
             return;
@@ -53,12 +58,11 @@ public class GetCommand extends EsthreeCommand {
         }
 
         String target = parameters.get(0);
-        String bucket = S3PathUtils.getBucket(target);
-        String key = S3PathUtils.getPrefix(target);
+        bucket = S3PathUtils.getBucket(target);
+        key = S3PathUtils.getPrefix(target);
         progress = progress == null;
 
         // TODO validate get params here
-        File outputFile;
         if(parameters.size() > 1) {
             outputFile = new File(parameters.get(1));
         } else {
@@ -79,17 +83,21 @@ public class GetCommand extends EsthreeCommand {
             outputFile = new File(fileName);
         }
 
-        try {
-            MutableProgressListener progressListener = null;
-            if(progress) {
-                progressListener = new PrintingProgressListener(output);
-            }
+        if(progress) {
+            progressListener = new PrintingProgressListener(output);
+        }
+    }
 
-            new Get(amazonS3Client, bucket, key, outputFile)
-                    .withProgressListener(progressListener)
-                    .call();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+    @Override
+    public void run() {
+        if(!help) {
+            try {
+                new Get(amazonS3Client, bucket, key, outputFile)
+                        .withProgressListener(progressListener)
+                        .call();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }

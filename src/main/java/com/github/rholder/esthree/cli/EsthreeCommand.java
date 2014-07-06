@@ -8,7 +8,7 @@ import io.airlift.command.model.CommandMetadata;
 
 import java.io.PrintStream;
 
-public class EsthreeCommand implements Runnable {
+public abstract class EsthreeCommand implements Runnable {
 
     public CommandMetadata commandMetadata;
     public AmazonS3Client amazonS3Client;
@@ -28,6 +28,8 @@ public class EsthreeCommand implements Runnable {
 
     @Option(type = OptionType.GLOBAL, name = "--endpoint", arity = 1, description = "The AWS S3 endpoint, defaults to s3.amazonaws.com, but could be something like s3.s3-us-west-1.amazonaws.com")
     public String endpoint;
+
+    public abstract void parse();
 
     public void run() {
         System.out.println(getClass().getSimpleName());

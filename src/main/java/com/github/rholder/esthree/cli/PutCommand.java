@@ -40,39 +40,38 @@ public class PutCommand extends EsthreeCommand {
             usage = "[filename] [target bucket and key]")
     public List<String> parameters;
 
-    @Override
-    public void run() {
-        if(help) {
-            showUsage(commandMetadata);
-            return;
-        }
+    public String bucket;
+    public String key;
+    public File outputFile;
+    public MutableProgressListener progressListener;
 
-        if(firstNonNull(parameters, emptyList()).size() == 0) {
+    @Override
+    public void parse() {
+        if (firstNonNull(parameters, emptyList()).size() == 0) {
             showUsage(commandMetadata);
             throw new IllegalArgumentException("No arguments specified");
         }
 
         // TODO foo s3://bucket  <--- support this?
-        if(parameters.size() != 2) {
+        if (parameters.size() != 2) {
             output.print("Invalid number of arguments");
             throw new RuntimeException("Invalid number of arguments");
         }
-        File outputFile = new File(parameters.get(0));
+        outputFile = new File(parameters.get(0));
 
         String target = parameters.get(1);
-        String bucket = S3PathUtils.getBucket(target);
-        String key = S3PathUtils.getPrefix(target);
+        bucket = S3PathUtils.getBucket(target);
+        key = S3PathUtils.getPrefix(target);
         progress = progress == null;
 
         // infer name from passed in file if it's not specified in the s3:// String
-        if(key == null) {
+        if (key == null) {
             key = outputFile.getName();
         }
 
         // TODO validate params here
         try {
-            MutableProgressListener progressListener = null;
-            if(progress) {
+            if (progress) {
                 progressListener = new PrintingProgressListener(output);
             }
 
@@ -81,6 +80,19 @@ public class PutCommand extends EsthreeCommand {
                     .call();
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void run() {
+        if (!help) {
+            try {
+                new Put(amazonS3Client, bucket, key, outputFile)
+                        .withProgressListener(progressListener)
+                        .call();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }

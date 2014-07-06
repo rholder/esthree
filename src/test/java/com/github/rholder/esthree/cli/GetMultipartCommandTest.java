@@ -23,7 +23,7 @@ public class GetMultipartCommandTest {
         getCommand.parameters = Lists.newArrayList("s3://foo/bar.txt");
         getCommand.amazonS3Client = client;
 
-        getCommand.run();
+        getCommand.parse();
     }
 
     @Test
@@ -36,21 +36,18 @@ public class GetMultipartCommandTest {
         getCommand.parameters = Lists.newArrayList("s3://foo/bar.txt", "baz.txt");
         getCommand.amazonS3Client = client;
 
-        getCommand.run();
+        getCommand.parse();
     }
 
     @Test
     public void garbagePath() throws IOException {
-        AmazonS3Client client = AmazonS3ClientMockUtils.createMockedClient(CHUNK_SIZE, EXPECTED_CHUNKS);
-
         GetMultipartCommand getCommand = new GetMultipartCommand();
         getCommand.progress = false;
         getCommand.chunkSize = CHUNK_SIZE;
         getCommand.parameters = Lists.newArrayList("potato");
-        getCommand.amazonS3Client = client;
 
         try {
-            getCommand.run();
+            getCommand.parse();
             Assert.fail("Expected an IllegalArgumentException for garbage path");
         } catch (IllegalArgumentException e) {
             Assert.assertTrue(e.getMessage().contains("target filename"));
@@ -59,16 +56,13 @@ public class GetMultipartCommandTest {
 
     @Test
     public void bucketWithNoFilename() throws IOException {
-        AmazonS3Client client = AmazonS3ClientMockUtils.createMockedClient(CHUNK_SIZE, EXPECTED_CHUNKS);
-
         GetMultipartCommand getCommand = new GetMultipartCommand();
         getCommand.progress = false;
         getCommand.chunkSize = CHUNK_SIZE;
         getCommand.parameters = Lists.newArrayList("s3://foo");
-        getCommand.amazonS3Client = client;
 
         try {
-            getCommand.run();
+            getCommand.parse();
             Assert.fail("Expected an IllegalArgumentException for garbage path");
         } catch (IllegalArgumentException e) {
             Assert.assertTrue(e.getMessage().contains("target filename"));
@@ -77,16 +71,13 @@ public class GetMultipartCommandTest {
 
     @Test
     public void bucketWithBlankFilename() throws IOException {
-        AmazonS3Client client = AmazonS3ClientMockUtils.createMockedClient(CHUNK_SIZE, EXPECTED_CHUNKS);
-
         GetMultipartCommand getCommand = new GetMultipartCommand();
         getCommand.progress = false;
         getCommand.chunkSize = CHUNK_SIZE;
         getCommand.parameters = Lists.newArrayList("s3://foo/");
-        getCommand.amazonS3Client = client;
 
         try {
-            getCommand.run();
+            getCommand.parse();
             Assert.fail("Expected an IllegalArgumentException for garbage path");
         } catch (IllegalArgumentException e) {
             Assert.assertTrue(e.getMessage().contains("target filename"));

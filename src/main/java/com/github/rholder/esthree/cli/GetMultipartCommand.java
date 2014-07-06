@@ -43,31 +43,35 @@ public class GetMultipartCommand extends EsthreeCommand {
     @Arguments(usage = "<target bucket and key> [optional target file]", description = "The target bucket and key, as in \"s3://bucket/foo.html\"")
     public List<String> parameters;
 
+    public String bucket;
+    public String key;
+    public File outputFile;
+    public MutableProgressListener progressListener;
+
     @Override
-    public void run() {
-        if(help) {
+    public void parse() {
+        if (help) {
             showUsage(commandMetadata);
             return;
         }
 
-        if(firstNonNull(parameters, emptyList()).size() == 0) {
+        if (firstNonNull(parameters, emptyList()).size() == 0) {
             showUsage(commandMetadata);
             throw new IllegalArgumentException("No arguments specified");
         }
 
         String target = parameters.get(0);
-        String bucket = S3PathUtils.getBucket(target);
-        String key = S3PathUtils.getPrefix(target);
+        bucket = S3PathUtils.getBucket(target);
+        key = S3PathUtils.getPrefix(target);
         progress = progress == null;
 
         // TODO validate get-multi params here
-        File outputFile;
-        if(parameters.size() > 1) {
+        if (parameters.size() > 1) {
             outputFile = new File(parameters.get(1));
         } else {
             // infer filename from file being fetched if unspecified
             String path = S3PathUtils.getPrefix(target);
-            if(path == null) {
+            if (path == null) {
                 throw new IllegalArgumentException("Could not determine target filename from " + target);
             }
 
@@ -76,25 +80,29 @@ public class GetMultipartCommand extends EsthreeCommand {
 
             String fileName;
             if (index < prefixLength) {
-                fileName =  path.substring(prefixLength);
+                fileName = path.substring(prefixLength);
             } else {
                 fileName = path.substring(index + 1);
             }
             outputFile = new File(fileName);
         }
 
-        try {
-            MutableProgressListener progressListener = null;
-            if(progress) {
-                progressListener = new PrintingProgressListener(output);
-            }
+        if (progress) {
+            progressListener = new PrintingProgressListener(output);
+        }
+    }
 
-            new GetMultipart(amazonS3Client, bucket, key, outputFile)
-                    .withChunkSize(chunkSize)
-                    .withProgressListener(progressListener)
-                    .call();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+    @Override
+    public void run() {
+        if (!help) {
+            try {
+                new GetMultipart(amazonS3Client, bucket, key, outputFile)
+                        .withChunkSize(chunkSize)
+                        .withProgressListener(progressListener)
+                        .call();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }

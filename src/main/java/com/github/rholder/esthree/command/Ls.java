@@ -30,10 +30,6 @@ import java.util.concurrent.ExecutionException;
 
 public class Ls implements Callable<Integer> {
 
-    // that's pretty close to s3cmd
-    public static final String DEFAULT_LIST_FORMAT = "%1$tF %1$tR %2$9s   s3://%3$s/%4$s";
-    public static final String DEFAULT_LIST_DIR_FORMAT = "%1$26s   s3://%2$s/%3$s";
-
     public static final Integer AWS_MAX_KEYS = 1000;
 
     public static final BigInteger AWS_MAX_KEYS_BIG = new BigInteger(AWS_MAX_KEYS.toString());
@@ -44,8 +40,8 @@ public class Ls implements Callable<Integer> {
     public String prefix;
     public BigInteger limit;
 
-    public String listFormat = DEFAULT_LIST_FORMAT;
-    public String listDirFormat = DEFAULT_LIST_DIR_FORMAT;
+    public String listFormat;
+    public String listDirFormat;
     public PrintStream printStream;
 
     public Ls(AmazonS3Client amazonS3Client, String bucket) {

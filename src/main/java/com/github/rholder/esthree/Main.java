@@ -63,6 +63,7 @@ public class Main {
             }
 
             command.output = System.out;
+            command.parse();
             command.run();
         } catch (Exception e) {
             if(command != null && command.verbose) {

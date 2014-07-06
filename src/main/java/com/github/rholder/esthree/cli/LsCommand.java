@@ -31,24 +31,31 @@ import static java.util.Collections.emptyList;
 @Command(name = "ls", description = "List the target bucket with an optional prefix")
 public class LsCommand extends EsthreeCommand {
 
+    // that's pretty close to s3cmd
+    public static final String DEFAULT_LIST_FORMAT = "%1$tF %1$tR %2$9s   s3://%3$s/%4$s";
+    public static final String DEFAULT_LIST_DIR_FORMAT = "%1$26s   s3://%2$s/%3$s";
+
     @Option(name = {"-l", "--limit"}, arity = 1,
             description = "Limit the number of returned results (unlimited by default)")
     public BigInteger limit;
 
     @Option(name = {"-lf", "--list-format"}, arity = 1, title = "format",
-            description = "The list format to use for displaying normal keys, defaulting to \""+ Ls.DEFAULT_LIST_FORMAT +"\"")
+            description = "The list format to use for displaying normal keys, defaulting to \""+ DEFAULT_LIST_FORMAT +"\"")
     public String listFormat;
 
     @Option(name = {"-ldf", "--list-directory-format"}, arity = 1, title = "format",
-            description = "The list directory format to use for displaying directories, defaulting to \"" + Ls.DEFAULT_LIST_DIR_FORMAT + "\"")
+            description = "The list directory format to use for displaying directories, defaulting to \"" + DEFAULT_LIST_DIR_FORMAT + "\"")
     public String listDirFormat;
 
     @Arguments(usage = "[target bucket and optional prefix]",
             description = "List the target bucket (with an optional prefix), as in \"s3://bucket\" or \"s3://bucket/prefix\"")
     public List<String> parameters;
 
+    public String bucket;
+    public String prefix;
+
     @Override
-    public void run() {
+    public void parse() {
         if(help) {
             showUsage(commandMetadata);
             return;
@@ -60,29 +67,32 @@ public class LsCommand extends EsthreeCommand {
         }
 
         String target = parameters.get(0);
-        String bucket = S3PathUtils.getBucket(target);
-        String prefix = S3PathUtils.getPrefix(target);
-        // TODO validate ls params here
+        bucket = S3PathUtils.getBucket(target);
+        prefix = S3PathUtils.getPrefix(target);
 
-        try {
-            Ls ls = new Ls(amazonS3Client, bucket)
-                    .withPrefix(prefix)
-                    .withLimit(limit)
-                    .withPrintStream(output);
+        listFormat = listFormat == null ? DEFAULT_LIST_FORMAT : listFormat;
+        listDirFormat = listDirFormat == null ? DEFAULT_LIST_DIR_FORMAT : listDirFormat;
 
-            if (listFormat != null) {
-                ls.withListFormat(listFormat);
+        if(bucket == null) {
+            throw new IllegalArgumentException("Could not determine target bucket from: " + target);
+        }
+    }
+
+    @Override
+    public void run() {
+        if (!help) {
+            try {
+                Ls ls = new Ls(amazonS3Client, bucket)
+                        .withPrefix(prefix)
+                        .withLimit(limit)
+                        .withListFormat(listFormat)
+                        .withListDirFormat(listDirFormat)
+                        .withPrintStream(output);
+
+                ls.call();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
-
-            if(listDirFormat != null) {
-                ls.withListDirFormat(listDirFormat);
-            }
-
-            // TODO add withListDirFormat customization?
-
-            ls.call();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 }

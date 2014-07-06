@@ -24,6 +24,11 @@ public class HelpCommand extends EsthreeCommand {
     public List<String> command = newArrayList();
 
     @Override
+    public void parse() {
+        // nothing to see here
+    }
+
+    @Override
     public void run() {
         help(global, command);
     }
