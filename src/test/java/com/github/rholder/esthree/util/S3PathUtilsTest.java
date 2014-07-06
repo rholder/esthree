@@ -19,10 +19,7 @@ package com.github.rholder.esthree.util;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static com.github.rholder.esthree.util.S3PathUtils.getBucket;
-import static com.github.rholder.esthree.util.S3PathUtils.getPrefix;
-
-public class S3PathUtilsTest {
+public class S3PathUtilsTest extends S3PathUtils {
 
     @Test
     public void checkBucket() {

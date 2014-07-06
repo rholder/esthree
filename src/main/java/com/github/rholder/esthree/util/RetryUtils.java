@@ -26,7 +26,7 @@ import com.google.common.base.Predicate;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-public class RetryUtils {
+public abstract class RetryUtils {
 
     /**
      * Meant for use with Amazon services that may sometimes indicate retry is appropriate (500s), or eventual

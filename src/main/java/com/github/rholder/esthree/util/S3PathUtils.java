@@ -19,7 +19,7 @@ package com.github.rholder.esthree.util;
 /**
  * Here's a collection of S3 path munging methods.
  */
-public class S3PathUtils {
+public abstract class S3PathUtils {
 
     public static final String S3_PROTOCOL = "s3://";
 
