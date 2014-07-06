@@ -23,7 +23,7 @@ import java.util.List;
 
 import static com.github.rholder.esthree.util.FileChunker.FilePart;
 
-public class FileChunkerTest {
+public class FileChunkerTest extends FileChunker {
 
     @Test
     public void oddParts() {

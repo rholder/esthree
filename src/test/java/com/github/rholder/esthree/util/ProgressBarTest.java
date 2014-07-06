@@ -18,10 +18,7 @@ package com.github.rholder.esthree.util;
 
 import org.junit.Test;
 
-import static com.github.rholder.esthree.util.ProgressBar.generate;
-import static com.github.rholder.esthree.util.ProgressBar.humanReadableByteCount;
-
-public class ProgressBarTest {
+public class ProgressBarTest extends ProgressBar {
 
     @Test
     public void checkGenerate() throws InterruptedException {

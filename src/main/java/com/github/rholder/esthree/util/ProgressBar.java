@@ -19,7 +19,7 @@ package com.github.rholder.esthree.util;
 /**
  * Progress bar hackery can be found in here.
  */
-public class ProgressBar {
+public abstract class ProgressBar {
 
     /**
      * Return a String that represents a progress bar from 0 - 100 percent complete.

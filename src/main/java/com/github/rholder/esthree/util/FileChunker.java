@@ -19,7 +19,7 @@ package com.github.rholder.esthree.util;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileChunker {
+public abstract class FileChunker {
 
     public static List<FilePart> chunk(long contentLength, long chunkSize) {
         List<FilePart> fileParts = new ArrayList<FilePart>();
