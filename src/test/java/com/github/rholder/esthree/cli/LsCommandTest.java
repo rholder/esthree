@@ -1,59 +1,55 @@
 package com.github.rholder.esthree.cli;
 
 
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.github.rholder.esthree.AmazonS3ClientMockUtils;
-import com.google.common.collect.Lists;
-import org.junit.Assert;
+import com.github.rholder.esthree.Main;
 import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.github.rholder.esthree.TestUtils.expectParseException;
+
 public class LsCommandTest {
 
     @Test
-    public void happyPath() throws IOException {
-        AmazonS3Client client = AmazonS3ClientMockUtils.createMockedClient(100, 1);
-
-        LsCommand lsCommand = new LsCommand();
-        lsCommand.parameters = Lists.newArrayList("s3://foo/");
-        lsCommand.amazonS3Client = client;
-
-        lsCommand.parse();
+    public void noParameters() {
+        Main main = new Main();
+        main.parseGlobalCli("ls");
+        expectParseException(main.command, "No arguments specified");
     }
 
     @Test
-    public void stillHappyPath() throws IOException {
-        AmazonS3Client client = AmazonS3ClientMockUtils.createMockedClient(100, 1);
+    public void help() {
+        Main main = new Main();
+        main.parseGlobalCli("ls", "-h");
+        main.command.parse();
+    }
 
-        LsCommand lsCommand = new LsCommand();
-        lsCommand.parameters = Lists.newArrayList("s3://foo/");
-        lsCommand.amazonS3Client = client;
+    @Test
+    public void happyPath() throws IOException {
+        Main main = new Main();
+        main.parseGlobalCli("ls", "s3://foo");
+        main.command.parse();
+    }
 
-        lsCommand.parse();
+    @Test
+    public void happyPathWithSlash() throws IOException {
+        Main main = new Main();
+        main.parseGlobalCli("ls", "s3://foo/");
+        main.command.parse();
     }
 
     @Test
     public void happyPathWithPrefix() throws IOException {
-        AmazonS3Client client = AmazonS3ClientMockUtils.createMockedClient(100, 1);
-
-        LsCommand lsCommand = new LsCommand();
-        lsCommand.parameters = Lists.newArrayList("s3://foo/bar");
-        lsCommand.amazonS3Client = client;
-
-        lsCommand.parse();
+        Main main = new Main();
+        main.parseGlobalCli("ls", "s3://foo/bar");
+        main.command.parse();
     }
 
     @Test
     public void garbagePath() throws IOException {
-        LsCommand lsCommand = new LsCommand();
-        lsCommand.parameters = Lists.newArrayList("potato");
+        Main main = new Main();
+        main.parseGlobalCli("ls", "potato");
 
-        try {
-            lsCommand.parse();
-            Assert.fail("Expected an IllegalArgumentException for garbage path");
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue(e.getMessage().contains("Could not determine target bucket"));
-        }
+        expectParseException(main.command, "Could not determine target bucket");
     }
 }

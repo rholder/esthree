@@ -1,81 +1,70 @@
 package com.github.rholder.esthree.cli;
 
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.github.rholder.esthree.AmazonS3ClientMockUtils;
-import com.google.common.collect.Lists;
-import org.junit.Assert;
+import com.github.rholder.esthree.Main;
 import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.github.rholder.esthree.TestUtils.expectParseException;
+
 public class GetCommandTest {
 
-    public static final int CHUNK_SIZE = 1000;
-    public static int EXPECTED_CHUNKS = 1;
+    @Test
+    public void noParameters() {
+        Main main = new Main();
+        main.parseGlobalCli("get");
+        expectParseException(main.command, "No arguments specified");
+    }
+
+    @Test
+    public void help() {
+        Main main = new Main();
+        main.parseGlobalCli("get", "-h");
+        main.command.parse();
+    }
 
     @Test
     public void happyPath() throws IOException {
-        AmazonS3Client client = AmazonS3ClientMockUtils.createMockedClient(CHUNK_SIZE, EXPECTED_CHUNKS);
+        Main main = new Main();
+        main.parseGlobalCli("get", "s3://foo/bar.txt");
+        main.command.parse();
+    }
 
-        GetCommand getCommand = new GetCommand();
-        getCommand.progress = false;
-        getCommand.parameters = Lists.newArrayList("s3://foo/bar.txt");
-        getCommand.amazonS3Client = client;
-
-        getCommand.parse();
+    @Test
+    public void happyPathNoProgress() throws IOException {
+        Main main = new Main();
+        main.parseGlobalCli("get", "-np", "s3://foo/bar.txt");
+        main.command.parse();
     }
 
     @Test
     public void happyPathWithTargetFile() throws IOException {
-        AmazonS3Client client = AmazonS3ClientMockUtils.createMockedClient(CHUNK_SIZE, EXPECTED_CHUNKS);
-
-        GetCommand getCommand = new GetCommand();
-        getCommand.progress = false;
-        getCommand.parameters = Lists.newArrayList("s3://foo/bar.txt", "baz.txt");
-        getCommand.amazonS3Client = client;
-
-        getCommand.parse();
+        Main main = new Main();
+        main.parseGlobalCli("get", "s3://foo/bar.txt", "baz.txt");
+        main.command.parse();
     }
 
     @Test
     public void garbagePath() throws IOException {
-        GetCommand getCommand = new GetCommand();
-        getCommand.progress = false;
-        getCommand.parameters = Lists.newArrayList("potato");
+        Main main = new Main();
+        main.parseGlobalCli("get", "potato");
 
-        try {
-            getCommand.parse();
-            Assert.fail("Expected an IllegalArgumentException for garbage path");
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue(e.getMessage().contains("target filename"));
-        }
+        expectParseException(main.command, "target filename");
     }
 
     @Test
     public void bucketWithNoFilename() throws IOException {
-        GetCommand getCommand = new GetCommand();
-        getCommand.progress = false;
-        getCommand.parameters = Lists.newArrayList("s3://foo");
+        Main main = new Main();
+        main.parseGlobalCli("get", "s3://foo");
 
-        try {
-            getCommand.parse();
-            Assert.fail("Expected an IllegalArgumentException for garbage path");
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue(e.getMessage().contains("target filename"));
-        }
+        expectParseException(main.command, "target filename");
     }
 
     @Test
     public void bucketWithBlankFilename() throws IOException {
-        GetCommand getCommand = new GetCommand();
-        getCommand.progress = false;
-        getCommand.parameters = Lists.newArrayList("s3://foo/");
+        Main main = new Main();
+        main.parseGlobalCli("get", "s3://foo/");
 
-        try {
-            getCommand.parse();
-            Assert.fail("Expected an IllegalArgumentException for garbage path");
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue(e.getMessage().contains("target filename"));
-        }
+        expectParseException(main.command, "target filename");
     }
 }

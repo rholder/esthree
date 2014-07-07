@@ -32,37 +32,48 @@ public class Main {
 
     public static final String HEADER = "%s - An S3 client that just works";
 
+    public EsthreeCommand command;
+
+    public static void main(String... args) {
+        new Main().execute(args);
+    }
+
     public static String getVersion() {
         // TODO pull this from the manifest
         return "0.2.2-SNAPSHOT";
     }
 
     @SuppressWarnings("unchecked")
-    public static void main(String... args) {
-        Cli<EsthreeCommand> cli = Cli.<EsthreeCommand>builder("esthree")
+    public Cli<EsthreeCommand> createCli() {
+        return Cli.<EsthreeCommand>builder("esthree")
                 .withDescription(String.format(HEADER, getVersion()))
                 .withDefaultCommand(HelpCommand.class)
                 .withCommands(HelpCommand.class, GetCommand.class, GetMultipartCommand.class, LsCommand.class, PutCommand.class)
                 .build();
+    }
 
-        EsthreeCommand command = null;
+    public void parseGlobalCli(String... args) {
+        command = createCli().parse(args);
+        command.commandMetadata = MetadataLoader.loadCommand(command.getClass());
+        command.output = System.out;
+
+        // override if keys are specified
+        if(command.accessKey != null || command.secretKey != null) {
+            command.amazonS3Client = new AmazonS3Client(new BasicAWSCredentials(command.accessKey, command.secretKey));
+        } else {
+            command.amazonS3Client = new AmazonS3Client(new DefaultAWSCredentialsProviderChain());
+        }
+
+        // override S3 endpoint if specified
+        if(command.endpoint != null) {
+            command.amazonS3Client.setEndpoint(command.endpoint);
+        }
+    }
+
+    public void execute(String... args) {
         try {
-            command = cli.parse(args);
-            command.commandMetadata = MetadataLoader.loadCommand(command.getClass());
+            parseGlobalCli(args);
 
-            // override if keys are specified
-            if(command.accessKey != null || command.secretKey != null) {
-                command.amazonS3Client = new AmazonS3Client(new BasicAWSCredentials(command.accessKey, command.secretKey));
-            } else {
-                command.amazonS3Client = new AmazonS3Client(new DefaultAWSCredentialsProviderChain());
-            }
-
-            // override S3 endpoint if specified
-            if(command.endpoint != null) {
-                command.amazonS3Client.setEndpoint(command.endpoint);
-            }
-
-            command.output = System.out;
             command.parse();
             command.run();
         } catch (Exception e) {
