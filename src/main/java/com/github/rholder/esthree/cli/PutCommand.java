@@ -47,6 +47,11 @@ public class PutCommand extends EsthreeCommand {
 
     @Override
     public void parse() {
+        if(help) {
+            showUsage(commandMetadata);
+            return;
+        }
+
         if (firstNonNull(parameters, emptyList()).size() == 0) {
             showUsage(commandMetadata);
             throw new IllegalArgumentException("No arguments specified");
@@ -69,17 +74,8 @@ public class PutCommand extends EsthreeCommand {
             key = outputFile.getName();
         }
 
-        // TODO validate params here
-        try {
-            if (progress) {
-                progressListener = new PrintingProgressListener(output);
-            }
-
-            new Put(amazonS3Client, bucket, key, outputFile)
-                    .withProgressListener(progressListener)
-                    .call();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        if (progress) {
+            progressListener = new PrintingProgressListener(output);
         }
     }
 
