@@ -28,11 +28,15 @@ import com.github.rholder.esthree.cli.PutCommand;
 import io.airlift.command.Cli;
 import io.airlift.command.model.MetadataLoader;
 
+import java.io.BufferedOutputStream;
+import java.io.PrintStream;
+
 public class Main {
 
     public static final String HEADER = "%s - An S3 client that just works";
 
     public EsthreeCommand command;
+    public PrintStream out;
 
     public static void main(String... args) {
         new Main().execute(args);
@@ -55,7 +59,7 @@ public class Main {
     public void parseGlobalCli(String... args) {
         command = createCli().parse(args);
         command.commandMetadata = MetadataLoader.loadCommand(command.getClass());
-        command.output = System.out;
+        command.output = out;
 
         // override if keys are specified
         if(command.accessKey != null || command.secretKey != null) {
@@ -72,6 +76,7 @@ public class Main {
 
     public void execute(String... args) {
         try {
+            out = new PrintStream(new BufferedOutputStream(System.out));
             parseGlobalCli(args);
 
             command.parse();
@@ -83,6 +88,11 @@ public class Main {
                 System.out.println(e.getMessage());
             }
             System.exit(1);
+        } finally {
+            if(out != null) {
+                out.flush();
+                out.close();
+            }
         }
     }
 }
