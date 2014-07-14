@@ -69,6 +69,7 @@ public class PrintingProgressListener extends SyncProgressListener implements Mu
                     generate(saturatedCast(round(completed + (progress.getPercentTransferred() * multiplier)))),
                     humanReadableByteCount(progress.getBytesTransferred(), true),
                     humanReadableByteCount(progress.getTotalBytesToTransfer(), true)));
+            out.flush();
         }
     }
 }
