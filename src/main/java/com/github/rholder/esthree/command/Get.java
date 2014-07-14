@@ -18,10 +18,11 @@ package com.github.rholder.esthree.command;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.event.ProgressEvent;
+import com.amazonaws.event.ProgressEventType;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.transfer.internal.TransferProgressImpl;
+import com.amazonaws.services.s3.transfer.TransferProgress;
 import com.amazonaws.util.BinaryUtils;
 import com.github.rholder.esthree.progress.MutableProgressListener;
 import com.github.rholder.esthree.progress.Progress;
@@ -75,7 +76,7 @@ public class Get implements Callable<Integer> {
         currentDigest = retryingGet();
 
         if(progressListener != null) {
-            progressListener.progressChanged(new ProgressEvent(ProgressEvent.COMPLETED_EVENT_CODE, 0));
+            progressListener.progressChanged(new ProgressEvent(ProgressEventType.TRANSFER_STARTED_EVENT));
         }
 
         if (!fullETag.contains("-")) {
@@ -109,7 +110,7 @@ public class Get implements Callable<Integer> {
                 contentLength = s3Object.getObjectMetadata().getContentLength();
                 fullETag = s3Object.getObjectMetadata().getETag();
 
-                Progress progress = new TransferProgressWrapper(new TransferProgressImpl());
+                Progress progress = new TransferProgressWrapper(new TransferProgress());
                 progress.setTotalBytesToTransfer(contentLength);
                 if (progressListener != null) {
                     progressListener.withTransferProgress(progress)
@@ -149,7 +150,7 @@ public class Get implements Callable<Integer> {
             output.write(buffer, 0, n);
             if (progressListener != null) {
                 progress.updateProgress(n);
-                progressListener.progressChanged(new ProgressEvent(n));
+                progressListener.progressChanged(new ProgressEvent(ProgressEventType.RESPONSE_BYTE_TRANSFER_EVENT, n));
             }
             computedDigest.update(buffer, 0, n);
             count += n;

@@ -18,11 +18,12 @@ package com.github.rholder.esthree.command;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.event.ProgressEvent;
+import com.amazonaws.event.ProgressEventType;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.transfer.internal.TransferProgressImpl;
+import com.amazonaws.services.s3.transfer.TransferProgress;
 import com.amazonaws.util.BinaryUtils;
 import com.github.rholder.esthree.progress.MutableProgressListener;
 import com.github.rholder.esthree.progress.Progress;
@@ -103,7 +104,7 @@ public class GetMultipart implements Callable<Integer> {
 
         // TODO fix total content length progress bar
         if(progressListener != null) {
-            progressListener.progressChanged(new ProgressEvent(ProgressEvent.COMPLETED_EVENT_CODE, 0));
+            progressListener.progressChanged(new ProgressEvent(ProgressEventType.TRANSFER_STARTED_EVENT));
         }
 
         String fullETag = om.getETag();
@@ -132,7 +133,7 @@ public class GetMultipart implements Callable<Integer> {
             public MessageDigest call() throws Exception {
 
                 long totalBytes = end - start + 1;
-                Progress progress = new TransferProgressWrapper(new TransferProgressImpl());
+                Progress progress = new TransferProgressWrapper(new TransferProgress());
                 progress.setTotalBytesToTransfer(totalBytes);
 
                 if (progressListener != null) {

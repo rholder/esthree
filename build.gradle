@@ -41,7 +41,7 @@ repositories {
 }
 
 dependencies {
-    compile "com.amazonaws:aws-java-sdk:1.6.9.1"
+    compile "com.amazonaws:aws-java-sdk:1.8.4"
     compile "com.github.rholder:guava-retrying:1.0.6"
     compile "commons-io:commons-io:2.4"
     compile "io.airlift:airline:0.6"
@@ -71,6 +71,12 @@ task autojarJar(type: Autojar) {
             "mime.types",
             "simplelogger.properties"]
 
+    // TODO don't produce this by hand, it's only good for joda 2.3 right now
+    String[] jodaTimeZones = new File('gradle/joda_tz')
+    jodaTimeZones.each {
+        autojarFiles.add(it)
+    }
+
     autojarClasses = [
             "org.slf4j.MDC",
             "org.slf4j.impl.StaticMDCBinder",
@@ -81,7 +87,7 @@ task autojarJar(type: Autojar) {
 
 task repackedJar(type: Exec, dependsOn: autojarJar) {
     group = "Distribution"
-    description = "Repack and strip debugging information with pack200"
+    description = "Repack and strip debugging information with pack200 (experimental)"
 
     def outputDir = new File(buildDir, "repacked")
     def outputFile = new File(outputDir, project.name + "-repacked.jar")
@@ -96,7 +102,7 @@ task repackedJar(type: Exec, dependsOn: autojarJar) {
 
 task packedExecutableBinary(dependsOn: repackedJar) {
     group = "Distribution"
-    description = "Create a distributable standalone executable binary that's been stripped of all debug info"
+    description = "Create a distributable standalone executable binary that's been stripped of all debug info (experimental)"
 
     def outputDir = new File(buildDir, "executable")
     outputs.dir outputDir

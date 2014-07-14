@@ -17,15 +17,19 @@
 package com.github.rholder.esthree.progress;
 
 import com.amazonaws.event.ProgressEvent;
+import com.amazonaws.event.ProgressEventType;
+import com.amazonaws.event.SyncProgressListener;
 
 import java.io.PrintStream;
 
+import static com.amazonaws.event.ProgressEventType.TRANSFER_COMPLETED_EVENT;
+import static com.amazonaws.event.ProgressEventType.TRANSFER_STARTED_EVENT;
 import static com.github.rholder.esthree.util.ProgressBar.generate;
 import static com.github.rholder.esthree.util.ProgressBar.humanReadableByteCount;
 import static com.google.common.primitives.Ints.saturatedCast;
 import static java.lang.Math.round;
 
-public class PrintingProgressListener implements MutableProgressListener {
+public class PrintingProgressListener extends SyncProgressListener implements MutableProgressListener {
 
     public volatile Progress progress;
     public PrintStream out;
@@ -55,9 +59,12 @@ public class PrintingProgressListener implements MutableProgressListener {
 
     @Override
     public void progressChanged(ProgressEvent progressEvent) {
-        if((progressEvent.getEventCode() & ProgressEvent.COMPLETED_EVENT_CODE) > 0) {
+        ProgressEventType type = progressEvent.getEventType();
+        if (type.equals(TRANSFER_COMPLETED_EVENT) || type.equals(TRANSFER_STARTED_EVENT)) {
             out.println();
-        } else {
+        }
+
+        if (type.isByteCountEvent()) {
             out.print(String.format("\r%1$s %2$10s / %3$s",
                     generate(saturatedCast(round(completed + (progress.getPercentTransferred() * multiplier)))),
                     humanReadableByteCount(progress.getBytesTransferred(), true),

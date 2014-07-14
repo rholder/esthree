@@ -17,22 +17,16 @@
 package com.github.rholder.esthree.progress;
 
 import com.amazonaws.services.s3.transfer.TransferProgress;
-import com.amazonaws.services.s3.transfer.internal.TransferProgressImpl;
 
 /**
- * Wrap Amazon's {@link TransferProgressImpl} and adapt it to a {@link Progress}.
+ * Wrap Amazon's {@link TransferProgress} and adapt it to a {@link Progress}.
  */
 public class TransferProgressWrapper implements Progress {
 
-    public TransferProgressImpl transferProgress;
-
-    public TransferProgressWrapper(TransferProgressImpl transferProgress) {
-        this.transferProgress = transferProgress;
-    }
+    public TransferProgress transferProgress;
 
     public TransferProgressWrapper(TransferProgress transferProgress) {
-        // if it's not this implementation then just 'esplode here
-        this.transferProgress = (TransferProgressImpl) transferProgress;
+        this.transferProgress = transferProgress;
     }
 
     @Override
