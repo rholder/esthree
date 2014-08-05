@@ -1,4 +1,4 @@
-[![Build Status](http://img.shields.io/travis/rholder/esthree.svg)](https://travis-ci.org/rholder/esthree) [![Latest Version](http://img.shields.io/badge/latest-0.2.2-brightgreen.svg)](https://github.com/rholder/esthree/releases/tag/v0.2.1) [![License](http://img.shields.io/badge/license-apache%202-brightgreen.svg)](https://github.com/rholder/esthree/blob/master/LICENSE)
+[![Build Status](http://img.shields.io/travis/rholder/esthree.svg)](https://travis-ci.org/rholder/esthree) [![Latest Version](http://img.shields.io/badge/latest-0.2.2-brightgreen.svg)](https://github.com/rholder/esthree/releases/tag/v0.2.2) [![License](http://img.shields.io/badge/license-apache%202-brightgreen.svg)](https://github.com/rholder/esthree/blob/master/LICENSE)
 
 
 ##What is this?
