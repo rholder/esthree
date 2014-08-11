@@ -1,4 +1,4 @@
-[![Build Status](http://img.shields.io/travis/rholder/esthree.svg)](https://travis-ci.org/rholder/esthree) [![Latest Version](http://img.shields.io/badge/latest-0.2.2-brightgreen.svg)](https://github.com/rholder/esthree/releases/tag/v0.2.2) [![License](http://img.shields.io/badge/license-apache%202-brightgreen.svg)](https://github.com/rholder/esthree/blob/master/LICENSE)
+[![Build Status](http://img.shields.io/travis/rholder/esthree.svg)](https://travis-ci.org/rholder/esthree) [![Latest Version](http://img.shields.io/badge/latest-0.2.3-brightgreen.svg)](https://github.com/rholder/esthree/releases/tag/v0.2.3) [![License](http://img.shields.io/badge/license-apache%202-brightgreen.svg)](https://github.com/rholder/esthree/blob/master/LICENSE)
 
 
 ##What is this?
@@ -49,7 +49,7 @@ esthree get-multi some-giant-file.wow s3://some-bucket/giant-file.wow
 ```
 
 ##Documentation
-Javadoc can be found [here](http://rholder.github.io/esthree/javadoc/0.2.2).
+Javadoc can be found [here](http://rholder.github.io/esthree/javadoc/0.2.3).
 
 ##License
 The esthree project is released under version 2.0 of the
