@@ -9,8 +9,12 @@ public class TestUtils {
         try {
             command.parse();
             Assert.fail("Expected Exception");
-        } catch(Exception e) {
-            Assert.assertTrue(e.getMessage().contains(exceptionMessage));
+        } catch (Exception e) {
+            Assert.assertTrue("\"" + e.getMessage() + "\"" +
+                            " does not contain " +
+                            "\"" + exceptionMessage + "\"",
+                    e.getMessage().contains(exceptionMessage)
+            );
         }
     }
 }
