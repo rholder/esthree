@@ -42,8 +42,8 @@ public class Main {
     }
 
     public static String getVersion() {
-        // TODO pull this from the manifest
-        return "0.2.2";
+        // TODO pull this from anywhere other than this hard coded spot
+        return "0.2.3";
     }
 
     @SuppressWarnings("unchecked")
