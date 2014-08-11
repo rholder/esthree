@@ -72,7 +72,7 @@ task autojarJar(type: Autojar) {
             "simplelogger.properties"]
 
     // TODO don't produce this by hand, it's only good for joda 2.3 right now
-    String[] jodaTimeZones = new File('gradle/joda_tz')
+    String[] jodaTimeZones = new File(project.projectDir, 'gradle/joda_tz')
     jodaTimeZones.each {
         autojarFiles.add(it)
     }
