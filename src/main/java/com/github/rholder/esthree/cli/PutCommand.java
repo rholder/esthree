@@ -47,7 +47,7 @@ public class PutCommand extends EsthreeCommand {
 
     @Override
     public void parse() {
-        if(help) {
+        if (help) {
             showUsage(commandMetadata);
             return;
         }
@@ -66,12 +66,19 @@ public class PutCommand extends EsthreeCommand {
 
         String target = parameters.get(1);
         bucket = S3PathUtils.getBucket(target);
+        if (bucket == null) {
+            output.print("Could not parse bucket name");
+            throw new RuntimeException("Could not parse bucket name");
+        }
         key = S3PathUtils.getPrefix(target);
         progress = progress == null;
 
         // infer name from passed in file if it's not specified in the s3:// String
         if (key == null) {
             key = outputFile.getName();
+        } else if (key.endsWith("/")) {
+            // if file ends with "/", also infer name from passed in file
+            key = key + outputFile.getName();
         }
 
         if (progress) {

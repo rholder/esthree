@@ -45,11 +45,12 @@ public class S3PathUtilsTest extends S3PathUtils {
         Assert.assertNull(getPrefix("s3:/"));
         Assert.assertNull(getPrefix("s3:/foo"));
 
-        Assert.assertNull(getPrefix(("s3://foo")));
-        Assert.assertNull(getPrefix(("s3://foo/")));
+        Assert.assertNull(getPrefix("s3://foo"));
+        Assert.assertNull(getPrefix("s3://foo/"));
 
-        Assert.assertEquals("bar", getPrefix(("s3://foo/bar")));
-        Assert.assertEquals("bar/baz", getPrefix(("s3://foo/bar/baz")));
-        Assert.assertEquals("bar/baz/", getPrefix(("s3://foo/bar/baz/")));
+        Assert.assertEquals("bar", getPrefix("s3://foo/bar"));
+        Assert.assertEquals("bar/", getPrefix("s3://foo/bar/"));
+        Assert.assertEquals("bar/baz", getPrefix("s3://foo/bar/baz"));
+        Assert.assertEquals("bar/baz/", getPrefix("s3://foo/bar/baz/"));
     }
 }
