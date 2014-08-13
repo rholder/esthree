@@ -50,6 +50,7 @@ dependencies {
 
     // junit testing
     testCompile "junit:junit:4.11"
+    testCompile "com.github.stefanbirkner:system-rules:1.5.0"
     testCompile "org.mockito:mockito-all:1.9.5"
     testCompile "commons-lang:commons-lang:2.6"
 }
