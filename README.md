@@ -55,6 +55,12 @@ Javadoc can be found [here](http://rholder.github.io/esthree/javadoc/0.2.3).
 The esthree project is released under version 2.0 of the
 [Apache License](http://www.apache.org/licenses/LICENSE-2.0).
 
+##Contribute
+1. Check for open issues or open a fresh issue to start a discussion around a feature idea or a bug.
+1. Fork the repository on GitHub to start making your changes to the **master** branch (or branch off of it).
+1. Write a test which shows that the bug was fixed or that the feature works as expected.
+1. Send a pull request and bug the maintainer until it gets merged and published. :)
+
 ##References
 * http://aws.amazon.com/s3/
 * http://s3tools.org/s3cmd
