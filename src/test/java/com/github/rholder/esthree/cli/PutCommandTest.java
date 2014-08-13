@@ -8,7 +8,7 @@ import java.io.IOException;
 
 import static com.github.rholder.esthree.TestUtils.expectParseException;
 
-public class PutCommandTest {
+public class PutCommandTest extends PutCommand {
 
     @Test
     public void noParameters() {

@@ -2,13 +2,14 @@ package com.github.rholder.esthree.cli;
 
 
 import com.github.rholder.esthree.Main;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 
 import static com.github.rholder.esthree.TestUtils.expectParseException;
 
-public class LsCommandTest {
+public class LsCommandTest extends LsCommand {
 
     @Test
     public void noParameters() {
@@ -29,6 +30,13 @@ public class LsCommandTest {
         Main main = new Main();
         main.parseGlobalCli("ls", "s3://foo");
         main.command.parse();
+
+        LsCommand c = (LsCommand) main.command;
+        Assert.assertEquals("foo", c.bucket);
+        Assert.assertEquals(DEFAULT_LIST_FORMAT, c.listFormat);
+        Assert.assertEquals(DEFAULT_LIST_DIR_FORMAT, c.listDirFormat);
+        Assert.assertNull(c.limit);
+        Assert.assertNull(c.prefix);
     }
 
     @Test
@@ -36,6 +44,13 @@ public class LsCommandTest {
         Main main = new Main();
         main.parseGlobalCli("ls", "s3://foo/");
         main.command.parse();
+
+        LsCommand c = (LsCommand) main.command;
+        Assert.assertEquals("foo", c.bucket);
+        Assert.assertEquals(DEFAULT_LIST_FORMAT, c.listFormat);
+        Assert.assertEquals(DEFAULT_LIST_DIR_FORMAT, c.listDirFormat);
+        Assert.assertNull(c.limit);
+        Assert.assertNull(c.prefix);
     }
 
     @Test
@@ -43,6 +58,13 @@ public class LsCommandTest {
         Main main = new Main();
         main.parseGlobalCli("ls", "s3://foo/bar");
         main.command.parse();
+
+        LsCommand c = (LsCommand) main.command;
+        Assert.assertEquals("foo", c.bucket);
+        Assert.assertEquals(DEFAULT_LIST_FORMAT, c.listFormat);
+        Assert.assertEquals(DEFAULT_LIST_DIR_FORMAT, c.listDirFormat);
+        Assert.assertNull(c.limit);
+        Assert.assertEquals("bar", c.prefix);
     }
 
     @Test

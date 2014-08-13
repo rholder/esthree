@@ -3,7 +3,9 @@ package com.github.rholder.esthree.cli;
 import com.github.rholder.esthree.Main;
 import io.airlift.command.ParseArgumentsUnexpectedException;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.ExpectedSystemExit;
 
 public class HelpCommandTest extends HelpCommand {
 

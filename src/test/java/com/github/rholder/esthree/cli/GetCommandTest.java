@@ -1,13 +1,25 @@
 package com.github.rholder.esthree.cli;
 
 import com.github.rholder.esthree.Main;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 
 import static com.github.rholder.esthree.TestUtils.expectParseException;
 
-public class GetCommandTest {
+public class GetCommandTest extends GetCommand {
+
+    @Test
+    public void defaultRun() {
+        EsthreeCommand cmd = new EsthreeCommand() {
+            @Override
+            public void parse() {
+                // no-op
+            }
+        };
+        cmd.run();
+    }
 
     @Test
     public void noParameters() {
@@ -28,6 +40,11 @@ public class GetCommandTest {
         Main main = new Main();
         main.parseGlobalCli("get", "s3://foo/bar.txt");
         main.command.parse();
+
+        GetCommand c = (GetCommand) main.command;
+        Assert.assertTrue(c.progress);
+        Assert.assertEquals("foo", c.bucket);
+        Assert.assertEquals("bar.txt", c.key);
     }
 
     @Test
@@ -35,6 +52,11 @@ public class GetCommandTest {
         Main main = new Main();
         main.parseGlobalCli("get", "-np", "s3://foo/bar.txt");
         main.command.parse();
+
+        GetCommand c = (GetCommand) main.command;
+        Assert.assertFalse(c.progress);
+        Assert.assertEquals("foo", c.bucket);
+        Assert.assertEquals("bar.txt", c.key);
     }
 
     @Test
@@ -42,6 +64,12 @@ public class GetCommandTest {
         Main main = new Main();
         main.parseGlobalCli("get", "s3://foo/bar.txt", "baz.txt");
         main.command.parse();
+
+        GetCommand c = (GetCommand) main.command;
+        Assert.assertTrue(c.progress);
+        Assert.assertEquals("foo", c.bucket);
+        Assert.assertEquals("bar.txt", c.key);
+        Assert.assertEquals("baz.txt", c.outputFile.getName());
     }
 
     @Test
