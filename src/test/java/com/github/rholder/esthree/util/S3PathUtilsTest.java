@@ -23,7 +23,10 @@ public class S3PathUtilsTest extends S3PathUtils {
 
     @Test
     public void checkBucket() {
+        Assert.assertNull(getBucket(""));
         Assert.assertNull(getBucket("foo"));
+        Assert.assertNull(getBucket("s3://"));
+        Assert.assertNull(getBucket("s3:///"));
         Assert.assertNull(getBucket("S3://foo"));
         Assert.assertNull(getBucket("s3:/foo"));
         Assert.assertNull(getBucket("s3//foo"));

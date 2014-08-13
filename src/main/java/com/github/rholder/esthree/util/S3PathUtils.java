@@ -29,6 +29,10 @@ public abstract class S3PathUtils {
      * @param s3format an s3 path string
      */
     public static String getBucket(String s3format) {
+        if(S3_PROTOCOL.equals(s3format) || "".equals(s3format)) {
+            return null;
+        }
+
         String bucket = null;
         if (s3format.startsWith(S3_PROTOCOL)) {
             String[] split = s3format.replaceFirst(S3_PROTOCOL, "").split("/");
