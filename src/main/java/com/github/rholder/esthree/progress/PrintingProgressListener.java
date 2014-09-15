@@ -21,6 +21,7 @@ import com.amazonaws.event.ProgressEventType;
 import com.amazonaws.event.SyncProgressListener;
 
 import java.io.PrintStream;
+import java.util.concurrent.TimeUnit;
 
 import static com.amazonaws.event.ProgressEventType.TRANSFER_COMPLETED_EVENT;
 import static com.amazonaws.event.ProgressEventType.TRANSFER_STARTED_EVENT;
@@ -30,6 +31,9 @@ import static com.google.common.primitives.Ints.saturatedCast;
 import static java.lang.Math.round;
 
 public class PrintingProgressListener extends SyncProgressListener implements MutableProgressListener {
+
+    public static final long ONE_S_AS_NS = TimeUnit.SECONDS.toNanos(1);
+    public static final long UPDATE_ETA_EVERY_NS = 2 * ONE_S_AS_NS;
 
     public volatile Progress progress;
     public PrintStream out;
@@ -72,16 +76,16 @@ public class PrintingProgressListener extends SyncProgressListener implements Mu
         }
 
         if (type.isByteCountEvent()) {
-            long timeLeft = getTimeLeft2();
+            long timeLeft = getTimeLeft();
             if (lastTimeLeft < 1 && timeLeft > 0) {
                 // prime this value with a sane starting point
                 lastTimeLeft = timeLeft;
             }
 
             // use an exponential moving average to smooth the estimate
-            lastTimeLeft += 0.25 * (timeLeft - lastTimeLeft);
+            lastTimeLeft += 0.90 * (timeLeft - lastTimeLeft);
 
-            out.print(String.format("\r%1$s  %2$s / %3$s  %4$s",
+            out.print(String.format("\r%1$s  %2$s / %3$s  %4$s      ",
                     generate(saturatedCast(round(completed + (progress.getPercentTransferred() * multiplier)))),
                     humanReadableByteCount(progress.getBytesTransferred(), true),
                     humanReadableByteCount(progress.getTotalBytesToTransfer(), true), fromSeconds(lastTimeLeft)));
@@ -94,28 +98,7 @@ public class PrintingProgressListener extends SyncProgressListener implements Mu
      *
      * @return an estimate, in seconds
      */
-    @Deprecated
     public long getTimeLeft() {
-        if (startTime == null) {
-            startTime = timeProvider.now();
-        }
-
-        long offset = timeProvider.now() - startTime;
-        long value = progress.getBytesTransferred();
-        long max = progress.getTotalBytesToTransfer();
-        long estimate = 0;
-        if (value > 0 && offset > 0) {
-            estimate = (long) ((offset / (float) value) * (max - value) / 1000000000.0);
-        }
-        return estimate;
-    }
-
-    /**
-     * Return the estimated number of seconds left to complete the transfer.
-     *
-     * @return an estimate, in seconds
-     */
-    public long getTimeLeft2() {
         long now = timeProvider.now();
         if (lastTime == null) {
             lastTime = now;
@@ -127,13 +110,14 @@ public class PrintingProgressListener extends SyncProgressListener implements Mu
         }
 
         long diffTime = now - lastTime;
-        long estimate = 0;
-        if (diffTime > 0 && currentBytes > 0) {
+        long estimate = lastTimeLeft;
+
+        if (diffTime > UPDATE_ETA_EVERY_NS && currentBytes > 0) {
             // bytes per ns
             double measuredSpeed = (lastBytes - currentBytes) / (double)(diffTime);
 
             // bytes left / bytes per ns, converted to s
-            estimate = (long)((currentBytes / measuredSpeed) / 1000000000.0);
+            estimate = (long)((currentBytes / measuredSpeed) / ONE_S_AS_NS);
 
             lastTime = now;
             lastBytes = currentBytes;
@@ -146,6 +130,6 @@ public class PrintingProgressListener extends SyncProgressListener implements Mu
         long s = seconds % 60;
         long m = (seconds / 60) % 60;
         long h = (seconds / (60 * 60)) % 24;
-        return String.format("%d:%02d:%02d", h, m, s);
+        return String.format("%02d:%02d:%02d", h, m, s);
     }
 }
