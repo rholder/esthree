@@ -19,6 +19,7 @@ package com.github.rholder.esthree.cli;
 import com.github.rholder.esthree.command.Get;
 import com.github.rholder.esthree.progress.MutableProgressListener;
 import com.github.rholder.esthree.progress.PrintingProgressListener;
+import com.github.rholder.esthree.progress.TimeProvider;
 import com.github.rholder.esthree.util.S3PathUtils;
 import io.airlift.command.Arguments;
 import io.airlift.command.Command;
@@ -84,7 +85,7 @@ public class GetCommand extends EsthreeCommand {
         }
 
         if(progress) {
-            progressListener = new PrintingProgressListener(output);
+            progressListener = new PrintingProgressListener(output, new TimeProvider());
         }
     }
 

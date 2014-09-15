@@ -35,11 +35,18 @@ public class PrintingProgressListener extends SyncProgressListener implements Mu
     public PrintStream out;
     public Double completed;
     public Double multiplier;
+    public Long startTime;
+    public long lastTimeLeft;
+    public TimeProvider timeProvider;
+    public Long lastTime;
+    public Long lastBytes;
 
-    public PrintingProgressListener(PrintStream out) {
+    public PrintingProgressListener(PrintStream out, TimeProvider timeProvider) {
         this.out = out;
         this.multiplier = 1.0;
         this.completed = 0.0;
+        this.lastTimeLeft = 0;
+        this.timeProvider = timeProvider;
     }
 
     public PrintingProgressListener withTransferProgress(Progress progress) {
@@ -65,11 +72,80 @@ public class PrintingProgressListener extends SyncProgressListener implements Mu
         }
 
         if (type.isByteCountEvent()) {
-            out.print(String.format("\r%1$s %2$10s / %3$s",
+            long timeLeft = getTimeLeft2();
+            if (lastTimeLeft < 1 && timeLeft > 0) {
+                // prime this value with a sane starting point
+                lastTimeLeft = timeLeft;
+            }
+
+            // use an exponential moving average to smooth the estimate
+            lastTimeLeft += 0.25 * (timeLeft - lastTimeLeft);
+
+            out.print(String.format("\r%1$s  %2$s / %3$s  %4$s",
                     generate(saturatedCast(round(completed + (progress.getPercentTransferred() * multiplier)))),
                     humanReadableByteCount(progress.getBytesTransferred(), true),
-                    humanReadableByteCount(progress.getTotalBytesToTransfer(), true)));
+                    humanReadableByteCount(progress.getTotalBytesToTransfer(), true), fromSeconds(lastTimeLeft)));
             out.flush();
         }
+    }
+
+    /**
+     * Return the estimated number of seconds left to complete the transfer.
+     *
+     * @return an estimate, in seconds
+     */
+    @Deprecated
+    public long getTimeLeft() {
+        if (startTime == null) {
+            startTime = timeProvider.now();
+        }
+
+        long offset = timeProvider.now() - startTime;
+        long value = progress.getBytesTransferred();
+        long max = progress.getTotalBytesToTransfer();
+        long estimate = 0;
+        if (value > 0 && offset > 0) {
+            estimate = (long) ((offset / (float) value) * (max - value) / 1000000000.0);
+        }
+        return estimate;
+    }
+
+    /**
+     * Return the estimated number of seconds left to complete the transfer.
+     *
+     * @return an estimate, in seconds
+     */
+    public long getTimeLeft2() {
+        long now = timeProvider.now();
+        if (lastTime == null) {
+            lastTime = now;
+        }
+
+        long currentBytes = progress.getTotalBytesToTransfer() - progress.getBytesTransferred();
+        if(lastBytes == null) {
+            lastBytes = currentBytes;
+        }
+
+        long diffTime = now - lastTime;
+        long estimate = 0;
+        if (diffTime > 0 && currentBytes > 0) {
+            // bytes per ns
+            double measuredSpeed = (lastBytes - currentBytes) / (double)(diffTime);
+
+            // bytes left / bytes per ns, converted to s
+            estimate = (long)((currentBytes / measuredSpeed) / 1000000000.0);
+
+            lastTime = now;
+            lastBytes = currentBytes;
+        }
+
+        return estimate;
+    }
+
+    public static String fromSeconds(long seconds) {
+        long s = seconds % 60;
+        long m = (seconds / 60) % 60;
+        long h = (seconds / (60 * 60)) % 24;
+        return String.format("%d:%02d:%02d", h, m, s);
     }
 }

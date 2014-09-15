@@ -2,6 +2,7 @@ package com.github.rholder.esthree.command;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.github.rholder.esthree.progress.PrintingProgressListener;
+import com.github.rholder.esthree.progress.TimeProvider;
 import org.junit.Test;
 
 import java.io.File;
@@ -31,7 +32,7 @@ public class GetTest {
         tmpFile.deleteOnExit();
 
         Get get = new Get(client, "testBucket", "testKey", tmpFile);
-        get.withProgressListener(new PrintingProgressListener(System.out));
+        get.withProgressListener(new PrintingProgressListener(System.out, new TimeProvider()));
         get.call();
     }
 
