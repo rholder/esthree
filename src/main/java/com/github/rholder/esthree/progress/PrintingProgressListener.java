@@ -39,7 +39,6 @@ public class PrintingProgressListener extends SyncProgressListener implements Mu
     public PrintStream out;
     public Double completed;
     public Double multiplier;
-    public Long startTime;
     public long lastTimeLeft;
     public TimeProvider timeProvider;
     public Long lastTime;
@@ -49,7 +48,7 @@ public class PrintingProgressListener extends SyncProgressListener implements Mu
         this.out = out;
         this.multiplier = 1.0;
         this.completed = 0.0;
-        this.lastTimeLeft = 0;
+        this.lastTimeLeft = 0L;
         this.timeProvider = timeProvider;
     }
 
@@ -105,19 +104,20 @@ public class PrintingProgressListener extends SyncProgressListener implements Mu
         }
 
         long currentBytes = progress.getTotalBytesToTransfer() - progress.getBytesTransferred();
-        if(lastBytes == null) {
+        if (lastBytes == null) {
             lastBytes = currentBytes;
         }
 
         long diffTime = now - lastTime;
-        long estimate = lastTimeLeft;
 
+        // default estimate to the last value, only update estimate after certain interval
+        long estimate = lastTimeLeft;
         if (diffTime > UPDATE_ETA_EVERY_NS && currentBytes > 0) {
             // bytes per ns
-            double measuredSpeed = (lastBytes - currentBytes) / (double)(diffTime);
+            double measuredSpeed = (lastBytes - currentBytes) / (double) (diffTime);
 
             // bytes left / bytes per ns, converted to s
-            estimate = (long)((currentBytes / measuredSpeed) / ONE_S_AS_NS);
+            estimate = (long) ((currentBytes / measuredSpeed) / ONE_S_AS_NS);
 
             lastTime = now;
             lastBytes = currentBytes;
