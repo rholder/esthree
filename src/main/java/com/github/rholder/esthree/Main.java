@@ -89,6 +89,7 @@ public class Main {
         } finally {
             if(command != null) {
                 if(command.output != null) {
+                    command.output.println();
                     command.output.flush();
                     command.output.close();
                 }
