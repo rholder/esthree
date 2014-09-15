@@ -89,7 +89,7 @@ public class Get implements Callable<Integer> {
             }
         } else {
             // TODO log warning that we can't validate the MD5
-            System.err.println("MD5 does not exist on AWS for file, calculated value: " + BinaryUtils.toHex(currentDigest.digest()));
+            System.err.println("\nMD5 does not exist on AWS for file, calculated value: " + BinaryUtils.toHex(currentDigest.digest()));
         }
         // TODO add ability to resume from previously downloaded chunks
         // TODO add rate limiter
