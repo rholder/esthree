@@ -1,4 +1,4 @@
-[![Build Status](http://img.shields.io/travis/rholder/esthree.svg)](https://travis-ci.org/rholder/esthree) [![Latest Version](http://img.shields.io/badge/latest-0.2.3-brightgreen.svg)](https://github.com/rholder/esthree/releases/tag/v0.2.3) [![License](http://img.shields.io/badge/license-apache%202-brightgreen.svg)](https://github.com/rholder/esthree/blob/master/LICENSE)
+[![Build Status](http://img.shields.io/travis/rholder/esthree.svg)](https://travis-ci.org/rholder/esthree) [![Latest Version](http://img.shields.io/badge/latest-0.2.4-brightgreen.svg)](https://github.com/rholder/esthree/releases/tag/v0.2.4) [![License](http://img.shields.io/badge/license-apache%202-brightgreen.svg)](https://github.com/rholder/esthree/blob/master/LICENSE)
 
 
 ##What is this?
@@ -21,7 +21,7 @@ it should raise a non-zero exit code on termination.
 `esthree` is just a single binary that you can drop anywhere you feel like on a *nix based system (sorry Windows, maybe
 it works with Cygwin...). As long as you have a JVM installed that's at least 1.6 or above, you can install it with:
 ```
-sudo curl -o /usr/local/bin/esthree -L "https://github.com/rholder/esthree/releases/download/v0.2.3/esthree" && \
+sudo curl -o /usr/local/bin/esthree -L "https://github.com/rholder/esthree/releases/download/v0.2.4/esthree" && \
 sudo chmod +x /usr/local/bin/esthree
 ```
 
@@ -31,6 +31,7 @@ Make sure you have your AWS keys in one of the places defined by the
  which is in this order:
 * Environment Variables - AWS_ACCESS_KEY_ID and AWS_SECRET_KEY
 * Java System Properties - aws.accessKeyId and aws.secretKey
+* Credential profiles file at the default location (~/.aws/credentials) shared by all AWS SDKs and the AWS CLI
 * Instance profile credentials delivered through the Amazon EC2 metadata service
 
 You can pass any number of Java System properties (as well as any other JVM specific arguments) to `esthree`
@@ -49,7 +50,7 @@ esthree get-multi some-giant-file.wow s3://some-bucket/giant-file.wow
 ```
 
 ##Documentation
-Javadoc can be found [here](http://rholder.github.io/esthree/javadoc/0.2.3).
+Javadoc can be found [here](http://rholder.github.io/esthree/javadoc/0.2.4).
 
 ##License
 The esthree project is released under version 2.0 of the
