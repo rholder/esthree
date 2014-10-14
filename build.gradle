@@ -69,10 +69,14 @@ task autojarJar(type: Autojar) {
     autojarFiles = [
             "com/amazonaws/sdk/versionInfo.properties",
             "awssdk_config_default.json",
-            "mime.types",
-            "simplelogger.properties"]
+            "mime.types"]
 
-    // TODO don't produce this by hand, it's only good for joda 2.3 right now
+    // TODO automate this, it's only good for joda 2.5 right now
+    /*
+    wget "http://repo1.maven.org/maven2/joda-time/joda-time/2.5/joda-time-2.5.jar"
+    unzip joda-time-2.5.jar
+    find org/joda/time/tz/data/ -type f | sort > joda_tz
+     */
     String[] jodaTimeZones = new File(project.projectDir, 'gradle/joda_tz')
     jodaTimeZones.each {
         autojarFiles.add(it)
