@@ -87,6 +87,20 @@ public class PutCommandTest extends PutCommand {
     }
 
     @Test
+    public void happyPathWithMeta() throws IOException {
+        Main main = new Main();
+        main.parseGlobalCli("put", "-np", "-meta", "aaa", "bbb", "-meta", "ccc", "ddd", "beep", "s3://foo/bar.txt");
+        main.command.parse();
+
+        PutCommand c = (PutCommand) main.command;
+        Assert.assertEquals(2, c.convertedMetadata.size());
+        Assert.assertEquals("bbb", c.convertedMetadata.get("aaa"));
+        Assert.assertEquals("ddd", c.convertedMetadata.get("ccc"));
+        Assert.assertEquals("foo", c.bucket);
+        Assert.assertEquals("bar.txt", c.key);
+    }
+
+    @Test
     public void garbagePath() throws IOException {
         Main main = new Main();
         main.parseGlobalCli("put", "banana", "potato");

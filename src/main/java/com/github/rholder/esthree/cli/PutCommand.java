@@ -26,16 +26,21 @@ import io.airlift.command.Command;
 import io.airlift.command.Option;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.base.Objects.firstNonNull;
 import static java.util.Collections.emptyList;
 
-@Command(name = "put", description = "List the target bucket with an optional prefix")
+@Command(name = "put", description = "Upload a file to S3 in the target bucket")
 public class PutCommand extends EsthreeCommand {
 
     @Option(name = {"-np", "--no-progress"}, description = "Don't print a progress bar")
     public Boolean progress;
+
+    @Option(name = {"-meta", "--metadata"}, arity = 2, description = "Add additional metadata to an uploaded S3 object")
+    public List<String> metadata;
 
     @Arguments(description = "Upload a file to S3 with the target bucket and optionally the key, as in \"foo.txt s3://bucket/foo.html\"",
             usage = "[filename] [target bucket and key]")
@@ -45,6 +50,7 @@ public class PutCommand extends EsthreeCommand {
     public String key;
     public File outputFile;
     public MutableProgressListener progressListener;
+    public Map<String, String> convertedMetadata;
 
     @Override
     public void parse() {
@@ -85,13 +91,20 @@ public class PutCommand extends EsthreeCommand {
         if (progress) {
             progressListener = new PrintingProgressListener(output, new TimeProvider());
         }
+
+        convertedMetadata = new HashMap<String, String>();
+        if(metadata != null) {
+            for (int i = 0; i < metadata.size(); i += 2) {
+                convertedMetadata.put(metadata.get(i), metadata.get(i + 1));
+            }
+        }
     }
 
     @Override
     public void run() {
         if (!help) {
             try {
-                new Put(amazonS3Client, bucket, key, outputFile)
+                new Put(amazonS3Client, bucket, key, outputFile, convertedMetadata)
                         .withProgressListener(progressListener)
                         .call();
             } catch (Exception e) {

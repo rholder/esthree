@@ -17,12 +17,15 @@
 package com.github.rholder.esthree.command;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.Upload;
 import com.github.rholder.esthree.progress.MutableProgressListener;
 import com.github.rholder.esthree.progress.TransferProgressWrapper;
 
 import java.io.File;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 public class Put implements Callable<Integer> {
@@ -31,14 +34,16 @@ public class Put implements Callable<Integer> {
     public String bucket;
     public String key;
     public File inputFile;
+    public Map<String, String> metadata;
 
     public MutableProgressListener progressListener;
 
-    public Put(AmazonS3Client amazonS3Client, String bucket, String key, File inputFile) {
+    public Put(AmazonS3Client amazonS3Client, String bucket, String key, File inputFile, Map<String, String> metadata) {
         this.amazonS3Client = amazonS3Client;
         this.bucket = bucket;
         this.key = key;
         this.inputFile = inputFile;
+        this.metadata = metadata;
     }
 
     public Put withProgressListener(MutableProgressListener progressListener) {
@@ -49,7 +54,11 @@ public class Put implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         TransferManager t = new TransferManager(amazonS3Client);
-        Upload u = t.upload(bucket, key, inputFile);
+
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setUserMetadata(metadata);
+
+        Upload u = t.upload(new PutObjectRequest(bucket, key, inputFile).withMetadata(objectMetadata));
 
         // TODO this listener spews out garbage >100% on a retry, add a test to verify
         if (progressListener != null) {
