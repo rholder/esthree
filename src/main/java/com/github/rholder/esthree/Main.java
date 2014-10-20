@@ -23,6 +23,7 @@ import com.github.rholder.esthree.cli.EsthreeCommand;
 import com.github.rholder.esthree.cli.GetCommand;
 import com.github.rholder.esthree.cli.GetMultipartCommand;
 import com.github.rholder.esthree.cli.HelpCommand;
+import com.github.rholder.esthree.cli.LbCommand;
 import com.github.rholder.esthree.cli.LsCommand;
 import com.github.rholder.esthree.cli.PutCommand;
 import io.airlift.command.Cli;
@@ -51,7 +52,7 @@ public class Main {
         return Cli.<EsthreeCommand>builder("esthree")
                 .withDescription(String.format(HEADER, getVersion()))
                 .withDefaultCommand(HelpCommand.class)
-                .withCommands(HelpCommand.class, GetCommand.class, GetMultipartCommand.class, LsCommand.class, PutCommand.class)
+                .withCommands(HelpCommand.class, GetCommand.class, GetMultipartCommand.class, LbCommand.class, LsCommand.class, PutCommand.class)
                 .build();
     }
 

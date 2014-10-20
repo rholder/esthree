@@ -40,7 +40,7 @@ public class LsCommand extends EsthreeCommand {
     public BigInteger limit;
 
     @Option(name = {"-lf", "--list-format"}, arity = 1, title = "format",
-            description = "The list format to use for displaying normal keys, defaulting to \""+ DEFAULT_LIST_FORMAT +"\"")
+            description = "The list format to use for displaying normal keys, defaulting to \"" + DEFAULT_LIST_FORMAT + "\"")
     public String listFormat;
 
     @Option(name = {"-ldf", "--list-directory-format"}, arity = 1, title = "format",
@@ -56,12 +56,12 @@ public class LsCommand extends EsthreeCommand {
 
     @Override
     public void parse() {
-        if(help) {
+        if (help) {
             showUsage(commandMetadata);
             return;
         }
 
-        if(firstNonNull(parameters, emptyList()).size() == 0) {
+        if (firstNonNull(parameters, emptyList()).size() == 0) {
             showUsage(commandMetadata);
             throw new IllegalArgumentException("No arguments specified");
         }
@@ -73,7 +73,7 @@ public class LsCommand extends EsthreeCommand {
         listFormat = listFormat == null ? DEFAULT_LIST_FORMAT : listFormat;
         listDirFormat = listDirFormat == null ? DEFAULT_LIST_DIR_FORMAT : listDirFormat;
 
-        if(bucket == null) {
+        if (bucket == null) {
             throw new IllegalArgumentException("Could not determine target bucket from: " + target);
         }
     }
