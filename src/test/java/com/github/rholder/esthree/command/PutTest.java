@@ -10,8 +10,6 @@ import org.junit.Test;
 import java.io.File;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.isNull;
-import static org.mockito.Matchers.matches;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -44,16 +42,4 @@ public class PutTest {
 
         verify(client, times(1)).putObject(any(PutObjectRequest.class));
     }
-
-//    @Test
-//    public void happyPathBucketRegion() throws Exception {
-//        AmazonS3Client client = mock(AmazonS3Client.class);
-//        Mb mb = new Mb(client, "beep", "boop");
-//
-//        Assert.assertEquals(mb.bucket, "beep");
-//        Assert.assertEquals(mb.region, "boop");
-//        mb.call();
-//
-//        verify(client, times(1)).createBucket(matches("beep"), matches("boop"));
-//    }
 }
