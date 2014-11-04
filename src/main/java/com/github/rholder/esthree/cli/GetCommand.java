@@ -93,7 +93,7 @@ public class GetCommand extends EsthreeCommand {
     public void run() {
         if(!help) {
             try {
-                new Get(amazonS3Client, bucket, key, outputFile)
+                new Get(amazonS3Client, bucket, key, outputFile, verbose)
                         .withProgressListener(progressListener)
                         .call();
             } catch (Exception e) {

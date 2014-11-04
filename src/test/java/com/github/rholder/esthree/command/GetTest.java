@@ -20,7 +20,7 @@ public class GetTest {
         File tmpFile = File.createTempFile("testFile", ".test");
         tmpFile.deleteOnExit();
 
-        Get get = new Get(client, "testBucket", "testKey", tmpFile);
+        Get get = new Get(client, "testBucket", "testKey", tmpFile, true);
         get.call();
     }
 
@@ -31,7 +31,7 @@ public class GetTest {
         File tmpFile = File.createTempFile("testFile", ".test");
         tmpFile.deleteOnExit();
 
-        Get get = new Get(client, "testBucket", "testKey", tmpFile);
+        Get get = new Get(client, "testBucket", "testKey", tmpFile, true);
         get.withProgressListener(new PrintingProgressListener(System.out, new TimeProvider()));
         get.call();
     }
