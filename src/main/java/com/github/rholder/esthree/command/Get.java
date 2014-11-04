@@ -49,6 +49,7 @@ public class Get implements Callable<Integer> {
     public String bucket;
     public String key;
     public File outputFile;
+    public boolean verbose;
     public RandomAccessFile output;
 
     private MutableProgressListener progressListener;
@@ -56,11 +57,12 @@ public class Get implements Callable<Integer> {
     private long contentLength;
     private String fullETag;
 
-    public Get(AmazonS3Client amazonS3Client, String bucket, String key, File outputFile) throws FileNotFoundException {
+    public Get(AmazonS3Client amazonS3Client, String bucket, String key, File outputFile, boolean verbose) throws FileNotFoundException {
         this.amazonS3Client = amazonS3Client;
         this.bucket = bucket;
         this.key = key;
         this.outputFile = outputFile;
+        this.verbose = verbose;
     }
 
     public Get withProgressListener(MutableProgressListener progressListener) {
@@ -89,7 +91,9 @@ public class Get implements Callable<Integer> {
             }
         } else {
             // TODO log warning that we can't validate the MD5
-            System.err.println("\nMD5 does not exist on AWS for file, calculated value: " + BinaryUtils.toHex(currentDigest.digest()));
+            if(verbose) {
+                System.err.println("\nMD5 does not exist on AWS for file, calculated value: " + BinaryUtils.toHex(currentDigest.digest()));
+            }
         }
         // TODO add ability to resume from previously downloaded chunks
         // TODO add rate limiter

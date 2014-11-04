@@ -56,6 +56,7 @@ public class GetMultipart implements Callable<Integer> {
     public String bucket;
     public String key;
     public File outputFile;
+    public boolean verbose;
     public RandomAccessFile output;
 
     private Integer chunkSize;
@@ -65,11 +66,12 @@ public class GetMultipart implements Callable<Integer> {
     private List<FilePart> fileParts;
     private long contentLength;
 
-    public GetMultipart(AmazonS3Client amazonS3Client, String bucket, String key, File outputFile) throws FileNotFoundException {
+    public GetMultipart(AmazonS3Client amazonS3Client, String bucket, String key, File outputFile, boolean verbose) throws FileNotFoundException {
         this.amazonS3Client = amazonS3Client;
         this.bucket = bucket;
         this.key = key;
         this.outputFile = outputFile;
+        this.verbose = verbose;
     }
 
     public GetMultipart withProgressListener(MutableProgressListener progressListener) {
@@ -118,7 +120,9 @@ public class GetMultipart implements Callable<Integer> {
             }
         } else {
             // TODO log warning that we can't validate the MD5
-            System.err.println("\nMD5 does not exist on AWS for file, calculated value: " + BinaryUtils.toHex(currentDigest.digest()));
+            if(verbose) {
+                System.err.println("\nMD5 does not exist on AWS for file, calculated value: " + BinaryUtils.toHex(currentDigest.digest()));
+            }
         }
         // TODO add ability to resume from previously downloaded chunks
         // TODO add rate limiter
@@ -178,7 +182,7 @@ public class GetMultipart implements Callable<Integer> {
             output.write(buffer, 0, n);
             if (progressListener != null) {
                 progress.updateProgress(n);
-                progressListener.progressChanged(new ProgressEvent(n));
+                progressListener.progressChanged(new ProgressEvent(ProgressEventType.REQUEST_BYTE_TRANSFER_EVENT, n));
             }
             computedDigest.update(buffer, 0, n);
             count += n;

@@ -37,7 +37,7 @@ public class GetMultiTest {
         File tmpFile = File.createTempFile("testFile", ".test");
         tmpFile.deleteOnExit();
 
-        GetMultipart gm = new GetMultipart(client, "testBucket", "testKey", tmpFile);
+        GetMultipart gm = new GetMultipart(client, "testBucket", "testKey", tmpFile, true);
         gm.withChunkSize(CHUNK_SIZE);
         gm.call();
     }
@@ -49,7 +49,7 @@ public class GetMultiTest {
         File tmpFile = File.createTempFile("testFile", ".test");
         tmpFile.deleteOnExit();
 
-        GetMultipart gm = new GetMultipart(client, "testBucket", "testKey", tmpFile);
+        GetMultipart gm = new GetMultipart(client, "testBucket", "testKey", tmpFile, true);
         gm.withChunkSize(CHUNK_SIZE);
         gm.withProgressListener(new PrintingProgressListener(System.out, new TimeProvider()));
         gm.call();

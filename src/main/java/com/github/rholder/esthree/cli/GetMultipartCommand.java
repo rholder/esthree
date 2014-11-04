@@ -97,7 +97,7 @@ public class GetMultipartCommand extends EsthreeCommand {
     public void run() {
         if (!help) {
             try {
-                new GetMultipart(amazonS3Client, bucket, key, outputFile)
+                new GetMultipart(amazonS3Client, bucket, key, outputFile, verbose)
                         .withChunkSize(chunkSize)
                         .withProgressListener(progressListener)
                         .call();
