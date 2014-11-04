@@ -24,7 +24,7 @@ import io.airlift.command.Option;
 public class LbCommand extends EsthreeCommand {
 
     // that's pretty close to s3cmd
-    public static final String DEFAULT_LIST_BUCKET_FORMAT = "%1$tF %1$tR   s3://%2$s";
+    public static final String DEFAULT_LIST_BUCKET_FORMAT = "%1$tF %1$tR  s3://%2$s";
 
     @Option(name = {"-lbf", "--list-bucket-format"}, arity = 1, title = "format",
             description = "The list bucket format to use for displaying buckets, defaulting to \"" + DEFAULT_LIST_BUCKET_FORMAT + "\"")
