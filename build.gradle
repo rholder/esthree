@@ -41,7 +41,7 @@ repositories {
 }
 
 dependencies {
-    compile "com.amazonaws:aws-java-sdk:1.8.11"
+    compile "com.amazonaws:aws-java-sdk-s3:1.9.17"
     compile "com.github.rholder:guava-retrying:1.0.6"
     compile "commons-io:commons-io:2.4"
     compile "io.airlift:airline:0.6"
@@ -101,7 +101,8 @@ task autojarJar(type: Autojar, dependsOn: prepareJodaTimezones) {
             "org.slf4j.impl.StaticMDCBinder",
             "org.apache.commons.logging.impl.SimpleLog",
             "org.apache.commons.logging.impl.LogFactoryImpl",
-            "com.amazonaws.internal.config.HttpClientConfigJsonHelper"]
+            "com.amazonaws.internal.config.HttpClientConfigJsonHelper",
+            "com.amazonaws.internal.config.HostRegexToRegionMappingJsonHelper"]
 }
 
 task executableBinary(dependsOn: autojarJar) {
