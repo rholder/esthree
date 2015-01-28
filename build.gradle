@@ -59,7 +59,23 @@ jar {
     exclude('simplelogger.properties')
 }
 
-task autojarJar(type: Autojar) {
+def findJar(prefix) {
+    return configurations.compile.filter { it.name.startsWith(prefix) }
+}
+
+task prepareJodaTimezones(type: Copy) {
+    group = "Distribution"
+    description = "Extract joda-time timezone data files out to the build directory"
+
+    def jarFile = findJar('joda-time').singleFile
+    def outputDir = new File(buildDir, "joda-time")
+
+    from zipTree(jarFile)
+    into outputDir
+    include 'org/joda/time/tz/data/**'
+}
+
+task autojarJar(type: Autojar, dependsOn: prepareJodaTimezones) {
     group = "Distribution"
     description = "Generate a stripped down Autojar'd executable jar"
 
@@ -72,15 +88,12 @@ task autojarJar(type: Autojar) {
             "awssdk_config_default.json",
             "mime.types"]
 
-    // TODO automate this, it's only good for joda 2.7 right now
-    /*
-    wget "http://repo1.maven.org/maven2/joda-time/joda-time/2.7/joda-time-2.7.jar"
-    unzip joda-time-2.7.jar
-    find org/joda/time/tz/data/ -type f | sort > joda_tz
-     */
-    String[] jodaTimeZones = new File(project.projectDir, 'gradle/joda_tz')
-    jodaTimeZones.each {
-        autojarFiles.add(it)
+    prepareJodaTimezones.outputs.files.each {
+        fileTree(it).visit {
+            if(!it.isDirectory()) {
+                autojarFiles.add(it.relativePath)
+            }
+        }
     }
 
     autojarClasses = [
@@ -91,8 +104,29 @@ task autojarJar(type: Autojar) {
             "com.amazonaws.internal.config.HttpClientConfigJsonHelper"]
 }
 
-task repackedJar(type: Exec, dependsOn: autojarJar) {
+task executableBinary(dependsOn: autojarJar) {
     group = "Distribution"
+    description = "Create a distributable standalone executable binary"
+
+    def outputDir = new File(buildDir, "executable")
+    outputs.dir outputDir
+    doLast {
+        autojarJar.outputs.files.each { jarFile ->
+            outputDir.mkdirs()
+
+            def out = new File(outputDir, project.name)
+            out.delete()
+
+            out.append(new FileInputStream(file("gradle/java_stub.sh")))
+            out.append(new FileInputStream(jarFile.absolutePath))
+
+            out.executable = true
+        }
+    }
+}
+
+task repackedJar(type: Exec, dependsOn: autojarJar) {
+    group = "Distribution - Experimental"
     description = "Repack and strip debugging information with pack200 (experimental)"
 
     def outputDir = new File(buildDir, "repacked")
@@ -107,34 +141,13 @@ task repackedJar(type: Exec, dependsOn: autojarJar) {
 }
 
 task packedExecutableBinary(dependsOn: repackedJar) {
-    group = "Distribution"
+    group = "Distribution - Experimental"
     description = "Create a distributable standalone executable binary that's been stripped of all debug info (experimental)"
 
     def outputDir = new File(buildDir, "executable")
     outputs.dir outputDir
     doLast {
         repackedJar.outputs.files.each { jarFile ->
-            outputDir.mkdirs()
-
-            def out = new File(outputDir, project.name)
-            out.delete()
-
-            out.append(new FileInputStream(file("gradle/java_stub.sh")))
-            out.append(new FileInputStream(jarFile.absolutePath))
-
-            out.executable = true
-        }
-    }
-}
-
-task executableBinary(dependsOn: autojarJar) {
-    group = "Distribution"
-    description = "Create a distributable standalone executable binary"
-
-    def outputDir = new File(buildDir, "executable")
-    outputs.dir outputDir
-    doLast {
-        autojarJar.outputs.files.each { jarFile ->
             outputDir.mkdirs()
 
             def out = new File(outputDir, project.name)
