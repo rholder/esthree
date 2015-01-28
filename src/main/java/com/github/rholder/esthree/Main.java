@@ -45,7 +45,7 @@ public class Main {
 
     public static String getVersion() {
         // TODO pull this from anywhere other than this hard coded spot
-        return "0.2.5";
+        return "0.2.6-SNAPSHOT";
     }
 
     @SuppressWarnings("unchecked")
