@@ -150,5 +150,5 @@ task executableBinary(dependsOn: autojarJar) {
 
 // enable Gradle Wrapper support for bootstrapping with specific version
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.10'
+    gradleVersion = '2.2.1'
 }
