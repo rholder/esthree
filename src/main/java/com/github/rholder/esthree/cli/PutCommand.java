@@ -39,7 +39,7 @@ public class PutCommand extends EsthreeCommand {
     @Option(name = {"-np", "--no-progress"}, description = "Don't print a progress bar")
     public Boolean progress;
 
-    @Option(name = {"-meta", "--metadata"}, arity = 2, description = "Add additional metadata to an uploaded S3 object")
+    @Option(name = {"-meta", "--metadata"}, arity = 2, description = "Add additional metadata to an uploaded S3 object, as in --metadata is-potato \"totally a potato\"")
     public List<String> metadata;
 
     @Arguments(description = "Upload a file to S3 with the target bucket and optionally the key, as in \"foo.txt s3://bucket/foo.html\"",
