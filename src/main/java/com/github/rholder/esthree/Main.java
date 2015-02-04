@@ -17,7 +17,6 @@
 package com.github.rholder.esthree;
 
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.github.rholder.esthree.cli.EsthreeCommand;
 import com.github.rholder.esthree.cli.GetCommand;
@@ -73,7 +72,7 @@ public class Main {
         if(command.accessKey != null || command.secretKey != null) {
             command.amazonS3Client = new AmazonS3Client(new BasicAWSCredentials(command.accessKey, command.secretKey));
         } else {
-            command.amazonS3Client = new AmazonS3Client(new DefaultAWSCredentialsProviderChain());
+            command.amazonS3Client = new AmazonS3Client();
         }
 
         // override S3 endpoint if specified
