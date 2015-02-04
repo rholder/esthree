@@ -42,7 +42,7 @@ repositories {
 
 dependencies {
     compile "com.amazonaws:aws-java-sdk-s3:1.9.17"
-    compile "com.github.rholder:guava-retrying:1.0.6"
+    compile "com.github.rholder:guava-retrying:1.0.7"
     compile "commons-io:commons-io:2.4"
     compile "io.airlift:airline:0.6"
 
