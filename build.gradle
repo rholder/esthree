@@ -87,7 +87,8 @@ task autojarJar(type: Autojar, dependsOn: prepareJodaTimezones) {
             "com/amazonaws/sdk/versionInfo.properties",
             "com/amazonaws/regions/regions.xml",
             "awssdk_config_default.json",
-            "mime.types"]
+            "mime.types",
+            "org/joda/time/tz/data/ZoneInfoMap"]
 
     prepareJodaTimezones.outputs.files.each {
         fileTree(it).visit {
