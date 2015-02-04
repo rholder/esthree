@@ -29,6 +29,8 @@ import com.github.rholder.esthree.progress.MutableProgressListener;
 import com.github.rholder.esthree.progress.Progress;
 import com.github.rholder.esthree.progress.TransferProgressWrapper;
 import com.github.rholder.esthree.util.RetryUtils;
+import com.github.rholder.moar.concurrent.partition.Part;
+import com.github.rholder.moar.concurrent.partition.Parts;
 import com.github.rholder.retry.RetryException;
 import org.apache.commons.io.IOUtils;
 
@@ -42,9 +44,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-
-import static com.github.rholder.esthree.util.FileChunker.FilePart;
-import static com.github.rholder.esthree.util.FileChunker.chunk;
 
 public class GetMultipart implements Callable<Integer> {
 
@@ -63,7 +62,7 @@ public class GetMultipart implements Callable<Integer> {
     private MutableProgressListener progressListener;
 
     private MessageDigest currentDigest;
-    private List<FilePart> fileParts;
+    private List<Part> fileParts;
     private long contentLength;
 
     public GetMultipart(AmazonS3Client amazonS3Client, String bucket, String key, File outputFile, boolean verbose) throws FileNotFoundException {
@@ -92,8 +91,8 @@ public class GetMultipart implements Callable<Integer> {
         // this is the most up to date digest, it's initialized here but later holds the most up to date valid digest
         currentDigest = MessageDigest.getInstance("MD5");
         chunkSize = chunkSize == null ? DEFAULT_CHUNK_SIZE : chunkSize;
-        fileParts = chunk(contentLength, chunkSize);
-        for (FilePart fp : fileParts) {
+        fileParts = Parts.among(contentLength, chunkSize);
+        for (Part fp : fileParts) {
 
             /*
              * We'll need to compute the digest on the full incoming stream for

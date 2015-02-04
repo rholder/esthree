@@ -6,7 +6,8 @@ import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
-import com.github.rholder.esthree.util.FileChunker;
+import com.github.rholder.moar.concurrent.partition.Part;
+import com.github.rholder.moar.concurrent.partition.Parts;
 import com.google.common.primitives.Ints;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -36,8 +37,8 @@ public class AmazonS3ClientMockUtils {
         om.setHeader(Headers.ETAG, A_MD5) ;
 
         List<S3Object> os = new ArrayList<S3Object>();
-        List<FileChunker.FilePart> parts = FileChunker.chunk(CONTENT_LENGTH, chunkSize);
-        for(final FileChunker.FilePart p : parts) {
+        List<Part> parts = Parts.among(CONTENT_LENGTH, chunkSize);
+        for(final Part p : parts) {
             // fake some content InputStream's by filling in chunks of a's
             S3Object o = mock(S3Object.class);
             S3ObjectInputStream input = new S3ObjectInputStream(
