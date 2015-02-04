@@ -89,15 +89,6 @@ task autojarJar(type: Autojar, dependsOn: prepareJodaTimezones) {
             "awssdk_config_default.json",
             "mime.types"]
 
-    prepareJodaTimezones.outputs.files.each {
-        fileTree(it).visit {
-            if(!it.isDirectory()) {
-                println it.relativePath
-                autojarFiles.add(it.relativePath)
-            }
-        }
-    }
-
     autojarClasses = [
             "org.slf4j.MDC",
             "org.slf4j.impl.StaticMDCBinder",
@@ -105,6 +96,17 @@ task autojarJar(type: Autojar, dependsOn: prepareJodaTimezones) {
             "org.apache.commons.logging.impl.LogFactoryImpl",
             "com.amazonaws.internal.config.HttpClientConfigJsonHelper",
             "com.amazonaws.internal.config.HostRegexToRegionMappingJsonHelper"]
+
+    doFirst {
+        prepareJodaTimezones.outputs.files.each {
+            fileTree(it).visit {
+                if(!it.isDirectory()) {
+                    println it.relativePath
+                    autojarFiles.add(it.relativePath)
+                }
+            }
+        }
+    }
 }
 
 task executableBinary(dependsOn: autojarJar) {
