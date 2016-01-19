@@ -91,6 +91,7 @@ public class Get implements Callable<Integer> {
             }
         } else {
             // TODO log warning that we can't validate the MD5
+            // TODO implement this algorithm for several common chunk sizes http://stackoverflow.com/questions/6591047/etag-definition-changed-in-amazon-s3
             if(verbose) {
                 System.err.println("\nMD5 does not exist on AWS for file, calculated value: " + BinaryUtils.toHex(currentDigest.digest()));
             }
