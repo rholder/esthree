@@ -84,6 +84,7 @@ task autojarJar(type: Autojar, dependsOn: prepareJodaTimezones) {
     manifest = defaultManifest()
 
     autojarFiles = [
+            "com/amazonaws/internal/config/awssdk_config_default.json",
             "com/amazonaws/sdk/versionInfo.properties",
             "com/amazonaws/regions/regions.xml",
             "awssdk_config_default.json",
