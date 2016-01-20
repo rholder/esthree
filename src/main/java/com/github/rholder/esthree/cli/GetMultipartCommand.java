@@ -30,7 +30,6 @@ import java.util.List;
 
 import static com.google.common.base.Objects.firstNonNull;
 import static java.util.Collections.emptyList;
-import static org.apache.commons.io.FilenameUtils.getPrefixLength;
 
 @Command(name = "get-multi", description = "Download a file from S3, but download in multiple parts")
 public class GetMultipartCommand extends EsthreeCommand {
@@ -70,22 +69,11 @@ public class GetMultipartCommand extends EsthreeCommand {
         if (parameters.size() > 1) {
             outputFile = new File(parameters.get(1));
         } else {
-            // infer filename from file being fetched if unspecified
-            String path = S3PathUtils.getPrefix(target);
-            if (path == null) {
+            String filename = S3PathUtils.getFilename(target);
+            if(filename == null) {
                 throw new IllegalArgumentException("Could not determine target filename from " + target);
             }
-
-            int index = path.lastIndexOf(File.separatorChar);
-            int prefixLength = getPrefixLength(path);
-
-            String fileName;
-            if (index < prefixLength) {
-                fileName = path.substring(prefixLength);
-            } else {
-                fileName = path.substring(index + 1);
-            }
-            outputFile = new File(fileName);
+            outputFile = new File(filename);
         }
 
         if (progress) {

@@ -95,4 +95,12 @@ public class GetCommandTest extends GetCommand {
 
         expectParseException(main.command, "target filename");
     }
+
+    @Test
+    public void bucketWithSlashGarbage() throws IOException {
+        Main main = new Main();
+        main.parseGlobalCli("get", "s3://foo/potato/");
+
+        expectParseException(main.command, "target filename");
+    }
 }

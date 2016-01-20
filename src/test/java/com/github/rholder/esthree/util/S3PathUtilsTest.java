@@ -56,4 +56,26 @@ public class S3PathUtilsTest extends S3PathUtils {
         Assert.assertEquals("bar/baz", getPrefix("s3://foo/bar/baz"));
         Assert.assertEquals("bar/baz/", getPrefix("s3://foo/bar/baz/"));
     }
+
+    @Test
+    public void checkInferredFilename() {
+        Assert.assertNull(getFilename("foo"));
+        Assert.assertNull(getFilename("S3://foo"));
+        Assert.assertNull(getFilename("s3:/foo"));
+        Assert.assertNull(getFilename("s3//foo"));
+        Assert.assertNull(getFilename("s3:/"));
+        Assert.assertNull(getFilename("s3:/foo"));
+
+        Assert.assertNull(getFilename("s3://foo"));
+        Assert.assertNull(getFilename("s3://foo/"));
+        Assert.assertNull(getFilename("s3://foo/bar/"));
+        Assert.assertNull(getFilename("s3://foo/bar/baz/"));
+        Assert.assertNull(getFilename("s3://foo/bar/baz//"));
+        Assert.assertNull(getFilename("s3://foo/bar/baz///"));
+
+        Assert.assertEquals("bar", getFilename("s3://foo/bar"));
+        Assert.assertEquals("baz", getFilename("s3://foo/bar/baz"));
+
+        Assert.assertEquals("bar.txt", getFilename("s3://foo/baz/bar.txt"));
+    }
 }

@@ -16,6 +16,10 @@
 
 package com.github.rholder.esthree.util;
 
+import java.io.File;
+
+import static org.apache.commons.io.FilenameUtils.getPrefixLength;
+
 /**
  * Here's a collection of S3 path munging methods.
  */
@@ -62,5 +66,31 @@ public abstract class S3PathUtils {
             }
         }
         return prefix;
+    }
+
+    /**
+     * Return the filename from an S3 path string (e.g. bar.txt from
+     * s3://foo/baz/bar.txt). This is useful if the file being fetched doesn't
+     * explicitly specify the name of the target file.
+     *
+     * @param s3format an s3 path string
+     * @return the inferred filename
+     */
+    public static String getFilename(String s3format) {
+        String path = S3PathUtils.getPrefix(s3format);
+        if(path == null || path.endsWith("/")) {
+            return null;
+        }
+        int index = path.lastIndexOf(File.separatorChar);
+        int prefixLength = getPrefixLength(path);
+
+        String fileName;
+        if (index < prefixLength) {
+            fileName =  path.substring(prefixLength);
+        } else {
+            fileName = path.substring(index + 1);
+        }
+
+        return fileName;
     }
 }
