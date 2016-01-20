@@ -66,3 +66,7 @@ The esthree project is released under version 2.0 of the
 
 ##Contributors
 * Jason Dunkelberger (dirkraft)
+* Joe Stump (joestump)
+* Anthony McClosky (amcclosky)
+* Brent Knight (Brent-Knight-BL)
+* Farah Maredia (fmaredia)
