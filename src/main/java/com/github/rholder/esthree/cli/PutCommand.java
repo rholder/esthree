@@ -39,6 +39,9 @@ public class PutCommand extends EsthreeCommand {
     @Option(name = {"-np", "--no-progress"}, description = "Don't print a progress bar")
     public Boolean progress;
 
+    @Option(name = {"-sse", "--server-side-encryption"}, description = "Enable server side encryption with AES256")
+    public Boolean sse;
+
     @Option(name = {"-meta", "--metadata"}, arity = 2, description = "Add additional metadata to an uploaded S3 object, as in --metadata is-potato \"totally a potato\"")
     public List<String> metadata;
 
@@ -78,7 +81,12 @@ public class PutCommand extends EsthreeCommand {
             throw new RuntimeException("Could not parse bucket name");
         }
         key = S3PathUtils.getPrefix(target);
+
+        // by default, always show progress bar
         progress = progress == null;
+
+        // by default, don't enable server side encryption
+        sse = sse != null;
 
         // infer name from passed in file if it's not specified in the s3:// String
         if (key == null) {
@@ -93,7 +101,7 @@ public class PutCommand extends EsthreeCommand {
         }
 
         convertedMetadata = new HashMap<String, String>();
-        if(metadata != null) {
+        if (metadata != null) {
             for (int i = 0; i < metadata.size(); i += 2) {
                 convertedMetadata.put(metadata.get(i), metadata.get(i + 1));
             }
@@ -104,7 +112,7 @@ public class PutCommand extends EsthreeCommand {
     public void run() {
         if (!help) {
             try {
-                new Put(amazonS3Client, bucket, key, outputFile, convertedMetadata)
+                new Put(amazonS3Client, bucket, key, outputFile, convertedMetadata, sse)
                         .withProgressListener(progressListener)
                         .call();
             } catch (Exception e) {

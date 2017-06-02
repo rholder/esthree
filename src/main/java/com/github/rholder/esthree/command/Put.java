@@ -19,6 +19,7 @@ package com.github.rholder.esthree.command;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.SSEAlgorithm;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.Upload;
 import com.github.rholder.esthree.progress.MutableProgressListener;
@@ -35,15 +36,17 @@ public class Put implements Callable<Integer> {
     public String key;
     public File inputFile;
     public Map<String, String> metadata;
+    public boolean sse;
 
     public MutableProgressListener progressListener;
 
-    public Put(AmazonS3Client amazonS3Client, String bucket, String key, File inputFile, Map<String, String> metadata) {
+    public Put(AmazonS3Client amazonS3Client, String bucket, String key, File inputFile, Map<String, String> metadata, boolean sse) {
         this.amazonS3Client = amazonS3Client;
         this.bucket = bucket;
         this.key = key;
         this.inputFile = inputFile;
         this.metadata = metadata;
+        this.sse = sse;
     }
 
     public Put withProgressListener(MutableProgressListener progressListener) {
@@ -57,6 +60,9 @@ public class Put implements Callable<Integer> {
 
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setUserMetadata(metadata);
+        if(sse) {
+            objectMetadata.setSSEAlgorithm(SSEAlgorithm.AES256.getAlgorithm());
+        }
 
         Upload u = t.upload(new PutObjectRequest(bucket, key, inputFile).withMetadata(objectMetadata));
 

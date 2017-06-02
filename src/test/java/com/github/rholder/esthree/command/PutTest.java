@@ -22,7 +22,7 @@ public class PutTest {
         AmazonS3Client client = mock(AmazonS3Client.class);
         when(client.putObject(any(PutObjectRequest.class))).thenReturn(new PutObjectResult());
 
-        Put put = new Put(client, null, null, null, null);
+        Put put = new Put(client, null, null, null, null, false);
         put.call();
 
         verify(client, times(1)).putObject(any(PutObjectRequest.class));
@@ -33,7 +33,7 @@ public class PutTest {
         AmazonS3Client client = mock(AmazonS3Client.class);
         when(client.putObject(any(PutObjectRequest.class))).thenReturn(new PutObjectResult());
 
-        Put put = new Put(client, "beep", "boop", new File("testfile"), Maps.<String, String>newHashMap());
+        Put put = new Put(client, "beep", "boop", new File("testfile"), Maps.<String, String>newHashMap(), false);
 
         Assert.assertEquals(put.bucket, "beep");
         Assert.assertEquals(put.key, "boop");
