@@ -44,7 +44,7 @@ public class Main {
 
     public static String getVersion() {
         // TODO pull this from anywhere other than this hard coded spot
-        return "0.3.0";
+        return "0.3.1";
     }
 
     @SuppressWarnings("unchecked")
@@ -69,7 +69,7 @@ public class Main {
         command.output = new PrintStream(new BufferedOutputStream(System.out));
 
         // override if keys are specified
-        if(command.accessKey != null || command.secretKey != null) {
+        if(command.accessKey != null && command.secretKey != null) {
             command.amazonS3Client = new AmazonS3Client(new BasicAWSCredentials(command.accessKey, command.secretKey));
         } else {
             command.amazonS3Client = new AmazonS3Client();
